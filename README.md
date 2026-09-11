@@ -3,7 +3,7 @@
 Home-built smart glasses: a see-through HUD in front of the right eye (0.96" OLED →
 fold mirror → f=50 lens → 50/50 beam splitter) driven by a XIAO ESP32-S3 Sense, with a
 voice assistant (Gemini Live, Polish) running on a home server.
-G.L.A.S.S. = *Gzowo Lens Assistant, Smart Sass*.
+G.L.A.S.S. = *Gzowo Like A Smart Sass*.
 
 ## Repo layout
 
