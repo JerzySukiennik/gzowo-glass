@@ -203,6 +203,22 @@ def build_head():
     ellipsoid('shoulders', (0, -110, -235), (200, 110, 55), M_HEAD, root)
     return root
 
+# ------------------------------------------------------------- scan head ---
+VD = 18.0   # must match VD in glass.scad
+
+def build_scan_head():
+    """Append Jurek's textured scan (reference/head-mm.blend, cornea plane at y=0) and place it at y = -VD."""
+    path = os.path.join(HERE, '..', 'reference', 'head-mm.blend')
+    with bpy.data.libraries.load(path, link=False) as (src, dst):
+        dst.objects = [n for n in src.objects]
+    root = bpy.data.objects.new('HEAD', None); bpy.context.collection.objects.link(root)
+    for ob in dst.objects:
+        if ob is None or ob.type != 'MESH': continue
+        bpy.context.collection.objects.link(ob)
+        ob.location = (0, -VD, 0); ob.parent = root
+        for m in ob.data.materials: m.use_backface_culling = True
+    return root
+
 # ----------------------------------------------------------------- cameras ---
 def camera(loc, target, lens=85, name='cam'):
     bpy.ops.object.camera_add(location=loc); c = bpy.context.object; c.name = name
@@ -219,14 +235,16 @@ def render(path, w=1600, h=1000):
     bpy.ops.render.render(write_still=True)
     print('RENDERED', path)
 
-def stills():
+def stills(scan=False):
     sc = reset(); lights()
     g = build_glasses()
-    head = build_head()
+    head = build_scan_head() if scan else build_head()
     # on-head shots
-    camera((330, 420, 80), (10, -20, 10), 85, 'cam_head34'); render(os.path.join(OUT, 'glass-head-front34.png'))
-    camera((520, -60, 40), (0, -60, 10), 85, 'cam_side'); render(os.path.join(OUT, 'glass-head-side.png'))
-    camera((60, 560, 40), (0, -20, 10), 85, 'cam_front'); render(os.path.join(OUT, 'glass-head-front.png'))
+    tag = 'scan' if scan else 'head'
+    camera((330, 420, 80), (10, -20, 10), 85, 'cam_head34'); render(os.path.join(OUT, f'glass-{tag}-front34.png'))
+    camera((520, -60, 40), (0, -60, 10), 85, 'cam_side'); render(os.path.join(OUT, f'glass-{tag}-side.png'))
+    camera((60, 560, 40), (0, -20, 10), 85, 'cam_front'); render(os.path.join(OUT, f'glass-{tag}-front.png'))
+    if scan: return
     # product shots without the head
     head.hide_render = True
     for o in head.children: o.hide_render = True
@@ -263,4 +281,4 @@ def save():
 
 if __name__ == '__main__':
     args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else ['stills']
-    {'stills': stills, 'turntable': turntable, 'save': save}[args[0]]()
+    {'stills': stills, 'scan': lambda: stills(scan=True), 'turntable': turntable, 'save': save}[args[0]]()

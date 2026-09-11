@@ -25,12 +25,15 @@
 
 part = "assembly";   // front | pod_r | pod_l | lid_r | lid_l | temple_r | temple_l | assembly | fit
 show_parts = true;   // ghost electronics/optics in assembly/fit
+show_head = true;    // ghost of Jurek's head scan (reference/head-mm.stl, cornea plane at y=0 in its own frame)
 $fn = 40;
 
 // ------------------------------------------------------------ head / fit ---
-PD       = 63;    // pupil distance
-VD       = 14;    // vertex distance (cornea -> frame back)
-NOSE_W   = 18;    // nose width at the eyes
+PD       = 62;    // pupil distance (provisional; scan scaled to this — replace with the measured value)
+VD       = 18;    // vertex distance (cornea -> frame back); 18 because the nose dorsum reaches y=18 at z=-6 (scan)
+DBL      = 18;    // distance between lenses (bridge width)
+PAD_X    = 11;    // nose pad centre x (flank of the nose at z=-10, scan: nose y=14 at x~+-9..10)
+PAD_ANG  = 32;    // nose pad face angle about Z (deg)
 TEMPLE_L = 100;   // hinge -> ear
 EX       = PD/2;
 
@@ -76,7 +79,7 @@ module rboxc(p, size, r=2) translate(p + size/2) rbox(size, r);   // rounded box
 module plate(d) rotate([90,0,0]) translate([0,0,-d]) linear_extrude(height=d) children(); // 2D (x,z) -> +y 0..d
 module lens2d(mir=false) // wayfarer opening, right eye; mirrored for the left
     scale([mir ? -1 : 1, 1]) offset(r=3) offset(r=-3)
-        polygon([[6,6],[50,6],[52,-2],[48,-14],[40,-20],[20,-21],[9,-17],[5,-6]]);
+        polygon([[DBL/2,6],[50,6],[52,-2],[48,-14],[40,-20],[22,-21],[DBL/2+4,-17],[DBL/2,-6]]);
 module tap(l)  cylinder(d=S_TAP, h=l);
 module clr(l)  cylinder(d=S_CLR, h=l);
 module head(l=3) cylinder(d=S_HEAD, h=l);
@@ -89,7 +92,9 @@ module front_solid() {
     // plug ends: right = hood end (x 66..70), left = bar end (x -66..-76)
     translate([HOOD_X1, 0, BAR_Z0]) cube([4, HOOD_D, BAR_Z1-BAR_Z0]);
     translate([-HOOD_X1-10, 0, BAR_Z0]) cube([10, FRONT_T, BAR_Z1-BAR_Z0]);
-    for (s=[-1,1]) translate([s*(NOSE_W/2+1)-2, -3.5, -14]) rboxc([0,0,0], [4, 7, 12], 1.5); // nose pads
+    // nose pads: angled saddle faces on the nose flanks (z -16..-4), protruding 4 mm behind the frame back
+    for (s=[-1,1]) translate([s*PAD_X, -1, -10]) rotate([0,0,-s*PAD_ANG]) rbox([3.2, 7, 13], 1.2);
+    for (s=[-1,1]) hull() { translate([s*PAD_X, -1, -10]) rotate([0,0,-s*PAD_ANG]) rbox([3.2, 7, 13], 1.2); translate([s*(DBL/2+2), 3, -8]) rbox([3, 5, 9], 1); }
 }
 module front_cuts() {
     for (m=[false,true]) {
@@ -224,6 +229,11 @@ module ghosts() {
     color("yellow", 0.3) translate([COMB[0]-BEAM_W/2, -VD, BEAM_Z-5.45]) cube([BEAM_W, COMB[1]+VD, 10.9]);
 }
 
+// ================================================================== HEAD ====
+module head_ghost() { // scan frame: origin between the pupils on the cornea plane -> shift back by VD
+    %translate([0, -VD, 0]) import("../reference/head-mm.stl");
+}
+
 // ================================================================ OUTPUT ====
 module assembly() {
     color("dimgray") front();
@@ -231,6 +241,7 @@ module assembly() {
     color("darkslategray") { lid(1); lid(-1); }
     color("dimgray") { temple(1); temple(-1); }
     if (show_parts) ghosts();
+    if (show_head) head_ghost();
 }
 if (part == "front") front();
 else if (part == "pod_r") pod(1);

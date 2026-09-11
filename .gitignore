@@ -1,3 +1,7 @@
 cad/stl/
 cad/*.blend1
 .DS_Store
+# head scan = biometric data, stays local
+reference/*
+!reference/.gitkeep
+!reference/README.md
