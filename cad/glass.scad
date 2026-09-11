@@ -277,5 +277,13 @@ else if (part == "lid_l") lid(-1);
 else if (part == "temple_r") temple(1);
 else if (part == "temple_l") temple(-1);
 else if (part == "pegs") pegs();
+else if (part == "exploded") {
+    color("dimgray") front();
+    for (s=[-1,1]) { color("slategray") translate([s*22, 0, 0]) pod(s); color("dimgray") translate([s*22, -30, 0]) temple(s); }
+    // pegs where they go: 4 short from below the pods, 2 long from above the hinges
+    color("orange") for (y=[1.6, HOOD_D-1.6]) translate([22+POD_CX-POD[0]/2+2, y, POD_Z0-14]) rotate([0,-90,0]) peg(2.35, 10);
+    color("orange") for (x=[-HOOD_X1-3, -HOOD_X1-8]) translate([-22+x, 3, POD_Z0-14]) rotate([0,-90,0]) peg(2.35, 10);
+    color("orange") for (s=[-1,1]) translate([s*(HINGE[0]+22), HINGE[1]-30, POD_Z0+POD[2]+14]) rotate([0,90,0]) peg(2.7, POD[2]+1);
+}
 else if (part == "fit") { %front(); %pod(1); %pod(-1); ghosts(); }
 else assembly();
