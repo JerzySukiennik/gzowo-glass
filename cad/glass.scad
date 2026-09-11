@@ -34,7 +34,8 @@ VD       = 18;    // vertex distance (cornea -> frame back); 18 because the nose
 DBL      = 18;    // distance between lenses (bridge width)
 PAD_X    = 11;    // nose pad centre x (flank of the nose at z=-10, scan: nose y=14 at x~+-9..10)
 PAD_ANG  = 32;    // nose pad face angle about Z (deg)
-TEMPLE_L = 100;   // hinge -> ear
+TEMPLE_L = 55;    // hinge -> ear top (scan: ear top 87 mm behind the cornea, hinge at y=-34)
+EAR_DROP = 24;    // temple z (19) -> ear top z (-4) from the scan
 EX       = PD/2;
 
 // ------------------------------------------------------- component sizes ---
@@ -68,6 +69,7 @@ MIR_C    = [POD_CX, COMB[1], BEAM_Z];             // fold mirror centre
 OLED_Y   = MIR_C[1] - (42 - (MIR_C[0] - LENS_X)); // screen plane y: OLED->mirror->lens = 42
 HINGE    = [POD_CX, POD_CY - POD[1]/2 - 4];       // temple hinge axis (x, y), behind the pod
 TEMPLE_W = 12;  TEMPLE_H = 14;  TEMPLE_Z = 19;
+TEMPLE_SPLAY = 13;  // deg, temples open outward from the hinge (scan: head +-95 at the ears incl. hair, hinge at +-82)
 LID_T    = 2;
 
 // --------------------------------------------------------------- helpers ---
@@ -192,24 +194,34 @@ module lid(s) {
 // =============================================================== TEMPLES ====
 module temple(s) {
     hx = s*HINGE[0]; hy = HINGE[1];
+    // everything but the knuckle is rotated about the hinge axis by the splay
+    translate([hx, hy, 0]) rotate([0,0,-s*TEMPLE_SPLAY]) translate([-hx, -hy, 0]) temple_body(s);
+    difference() {
+        translate([hx, hy, POD_Z0+8.3]) cylinder(r=4.5, h=POD[2]-16.6);                 // knuckle (on the axis)
+        translate([hx, hy, POD_Z0-1]) clr(POD[2]+2);
+    }
+}
+module temple_body(s) {
+    hx = s*HINGE[0]; hy = HINGE[1];
     difference() {
         union() {
-            translate([hx, hy, POD_Z0+8.3]) cylinder(r=4.5, h=POD[2]-16.6);             // knuckle
             hull() {                                                                    // root
                 translate([hx, hy, POD_Z0+8.3]) cylinder(r=4.5, h=POD[2]-16.6);
                 rboxc([hx-TEMPLE_W/2, hy-14, TEMPLE_Z-TEMPLE_H/2], [TEMPLE_W, 8, TEMPLE_H], 2);
             }
             rboxc([hx-TEMPLE_W/2, hy-TEMPLE_L, TEMPLE_Z-TEMPLE_H/2], [TEMPLE_W, TEMPLE_L-6, TEMPLE_H], 2.5); // arm
-            translate([hx, hy-TEMPLE_L+2, TEMPLE_Z]) rotate([-30,0,0]) rboxc([-4, -44, -5], [8, 46, 10], 2);   // ear hook
-            if (s>0) translate([hx-TEMPLE_W/2, hy-TEMPLE_L+16, TEMPLE_Z]) rotate([0,90,0]) cylinder(d=SPK_D+5, h=7); // speaker boss
+            // ear hook: drops EAR_DROP over ~30 mm, then curls down behind the ear
+            hull() { translate([hx, hy-TEMPLE_L+3, TEMPLE_Z]) sphere(r=4.5, $fn=24); translate([hx, hy-TEMPLE_L-26, TEMPLE_Z-EAR_DROP+2]) sphere(r=4, $fn=24); }
+            hull() { translate([hx, hy-TEMPLE_L-26, TEMPLE_Z-EAR_DROP+2]) sphere(r=4, $fn=24); translate([hx, hy-TEMPLE_L-34, TEMPLE_Z-EAR_DROP-14]) sphere(r=3.5, $fn=24); }
+            if (s>0) translate([hx-TEMPLE_W/2, hy-TEMPLE_L+16, TEMPLE_Z-2]) rotate([0,90,0]) cylinder(d=SPK_D+5, h=7); // speaker boss (just in front of the ear)
         }
         translate([hx, hy, POD_Z0-1]) clr(POD[2]+2);                                    // hinge screw
-        translate([hx-1.4, hy-TEMPLE_L+14, TEMPLE_Z-1.4]) cube([2.8, TEMPLE_L-20, 2.8]); // wire channel
+        translate([hx-1.4, hy-TEMPLE_L+8, TEMPLE_Z-1.4]) cube([2.8, TEMPLE_L-12, 2.8]); // wire channel
         if (s>0) {
             cy = hy-TEMPLE_L+16;
-            translate([hx-TEMPLE_W/2-1, cy, TEMPLE_Z]) rotate([0,90,0]) cylinder(d=SPK_D+2*CLR, h=SPK_T+CLR+1);
-            for (a=[0:60:300]) translate([hx-TEMPLE_W/2-1, cy+6*cos(a), TEMPLE_Z+6*sin(a)]) rotate([0,90,0]) cylinder(d=2, h=10);
-            translate([hx-TEMPLE_W/2-1, cy, TEMPLE_Z]) rotate([0,90,0]) cylinder(d=2, h=10);
+            translate([hx-TEMPLE_W/2-1, cy, TEMPLE_Z-2]) rotate([0,90,0]) cylinder(d=SPK_D+2*CLR, h=SPK_T+CLR+1);
+            for (a=[0:60:300]) translate([hx-TEMPLE_W/2-1, cy+6*cos(a), TEMPLE_Z-2+6*sin(a)]) rotate([0,90,0]) cylinder(d=2, h=10);
+            translate([hx-TEMPLE_W/2-1, cy, TEMPLE_Z-2]) rotate([0,90,0]) cylinder(d=2, h=10);
         }
     }
 }
@@ -231,8 +243,9 @@ module ghosts() {
 
 // ================================================================== HEAD ====
 module head_ghost() { // scan frame: origin between the pupils on the cornea plane -> shift back by VD
-    %translate([0, -VD, 0]) import("../reference/head-mm.stl");
+    %translate([0, -VD, 0]) import(head_file);
 }
+head_file = "../reference/head2-mm.stl";   // full head with ears (head-mm.stl = face-only, denser nose)
 
 // ================================================================ OUTPUT ====
 module assembly() {

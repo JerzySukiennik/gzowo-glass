@@ -208,7 +208,7 @@ VD = 18.0   # must match VD in glass.scad
 
 def build_scan_head():
     """Append Jurek's textured scan (reference/head-mm.blend, cornea plane at y=0) and place it at y = -VD."""
-    path = os.path.join(HERE, '..', 'reference', 'head-mm.blend')
+    path = os.path.join(HERE, '..', 'reference', 'head2-mm.blend')   # full head with ears (textured)
     with bpy.data.libraries.load(path, link=False) as (src, dst):
         dst.objects = [n for n in src.objects]
     root = bpy.data.objects.new('HEAD', None); bpy.context.collection.objects.link(root)
@@ -241,9 +241,9 @@ def stills(scan=False):
     head = build_scan_head() if scan else build_head()
     # on-head shots
     tag = 'scan' if scan else 'head'
-    camera((330, 420, 80), (10, -20, 10), 85, 'cam_head34'); render(os.path.join(OUT, f'glass-{tag}-front34.png'))
-    camera((520, -60, 40), (0, -60, 10), 85, 'cam_side'); render(os.path.join(OUT, f'glass-{tag}-side.png'))
-    camera((60, 560, 40), (0, -20, 10), 85, 'cam_front'); render(os.path.join(OUT, f'glass-{tag}-front.png'))
+    camera((380, 480, 120), (10, -40, 0), 85, 'cam_head34'); render(os.path.join(OUT, f'glass-{tag}-front34.png'))
+    camera((620, -80, 60), (0, -70, 0), 85, 'cam_side'); render(os.path.join(OUT, f'glass-{tag}-side.png'))
+    camera((40, 640, 60), (0, -40, 0), 85, 'cam_front'); render(os.path.join(OUT, f'glass-{tag}-front.png'))
     if scan: return
     # product shots without the head
     head.hide_render = True
