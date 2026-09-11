@@ -119,7 +119,11 @@ module front_cuts() {
 module front() difference() { front_solid(); front_cuts(); }
 
 // ================================================================== PODS ====
-module pod_shell(s) rboxc([s>0 ? POD_CX-POD[0]/2 : -POD_CX-POD[0]/2, POD_CY-POD[1]/2, POD_Z0], POD, 7);
+module pod_shell(s) {
+    rboxc([s>0 ? POD_CX-POD[0]/2 : -POD_CX-POD[0]/2, POD_CY-POD[1]/2, POD_Z0], POD, 7);
+    // inner face (toward the front) is a flat slab with 2 mm rounding so the bar/hood meet it flush
+    rboxc([s>0 ? POD_CX-POD[0]/2 : -POD_CX-POD[0]/2+POD[0]-9, POD_CY-POD[1]/2+1, POD_Z0+1], [9, POD[1]-2, POD[2]-2], 2);
+}
 module pod_cavity(s) {
     x0 = s>0 ? POD_CX-POD[0]/2+WALL : -POD_CX-POD[0]/2-1;   // open toward the outer side (lid)
     translate([x0, POD_CY-POD[1]/2+WALL, POD_Z0+WALL]) cube([POD[0]-WALL+1, POD[1]-2*WALL, POD[2]-2*WALL]);
