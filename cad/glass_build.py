@@ -216,7 +216,10 @@ def build_scan_head():
         if ob is None or ob.type != 'MESH': continue
         bpy.context.collection.objects.link(ob)
         ob.location = (0, -VD, 0); ob.parent = root
-        for m in ob.data.materials: m.use_backface_culling = True
+        for m in ob.data.materials:
+            m.use_backface_culling = True
+            if os.environ.get('GLASS_XRAY'):
+                m.surface_render_method = 'BLENDED'; m.node_tree.nodes['Principled BSDF'].inputs['Alpha'].default_value = 0.45
     return root
 
 # ----------------------------------------------------------------- cameras ---
@@ -244,7 +247,11 @@ def stills(scan=False):
     camera((380, 480, 120), (10, -40, 0), 85, 'cam_head34'); render(os.path.join(OUT, f'glass-{tag}-front34.png'))
     camera((620, -80, 60), (0, -70, 0), 85, 'cam_side'); render(os.path.join(OUT, f'glass-{tag}-side.png'))
     camera((40, 640, 60), (0, -40, 0), 85, 'cam_front'); render(os.path.join(OUT, f'glass-{tag}-front.png'))
-    if scan: return
+    if scan:
+        if os.environ.get('GLASS_XRAY'):
+            camera((620, -80, 60), (0, -70, 0), 85, 'cam_side_x'); render(os.path.join(OUT, 'glass-scan-side-xray.png'))
+            camera((0, -60, 700), (0, -60, 0), 85, 'cam_top_x'); render(os.path.join(OUT, 'glass-scan-top-xray.png'))
+        return
     # product shots without the head
     head.hide_render = True
     for o in head.children: o.hide_render = True

@@ -34,7 +34,7 @@ VD       = 18;    // vertex distance (cornea -> frame back); 18 because the nose
 DBL      = 18;    // distance between lenses (bridge width)
 PAD_X    = 11;    // nose pad centre x (flank of the nose at z=-10, scan: nose y=14 at x~+-9..10)
 PAD_ANG  = 32;    // nose pad face angle about Z (deg)
-TEMPLE_L = 55;    // hinge -> ear top (scan: ear top 87 mm behind the cornea, hinge at y=-34)
+TEMPLE_L = 63;    // hinge -> start of the ear bend (scan: ear top 87 mm behind the cornea; Jurek: ears sit a bit further back)
 EAR_DROP = 24;    // temple z (19) -> ear top z (-4) from the scan
 EX       = PD/2;
 
@@ -211,8 +211,8 @@ module temple_body(s) {
             }
             rboxc([hx-TEMPLE_W/2, hy-TEMPLE_L, TEMPLE_Z-TEMPLE_H/2], [TEMPLE_W, TEMPLE_L-6, TEMPLE_H], 2.5); // arm
             // ear hook: drops EAR_DROP over ~30 mm, then curls down behind the ear
-            hull() { translate([hx, hy-TEMPLE_L+3, TEMPLE_Z]) sphere(r=4.5, $fn=24); translate([hx, hy-TEMPLE_L-26, TEMPLE_Z-EAR_DROP+2]) sphere(r=4, $fn=24); }
-            hull() { translate([hx, hy-TEMPLE_L-26, TEMPLE_Z-EAR_DROP+2]) sphere(r=4, $fn=24); translate([hx, hy-TEMPLE_L-34, TEMPLE_Z-EAR_DROP-14]) sphere(r=3.5, $fn=24); }
+            hull() { translate([hx, hy-TEMPLE_L+3, TEMPLE_Z]) sphere(r=4.5, $fn=24); translate([hx, hy-TEMPLE_L-30, TEMPLE_Z-EAR_DROP+2]) sphere(r=4, $fn=24); }
+            hull() { translate([hx, hy-TEMPLE_L-30, TEMPLE_Z-EAR_DROP+2]) sphere(r=4, $fn=24); translate([hx, hy-TEMPLE_L-40, TEMPLE_Z-EAR_DROP-16]) sphere(r=3.5, $fn=24); }
             if (s>0) translate([hx-TEMPLE_W/2, hy-TEMPLE_L+16, TEMPLE_Z-2]) rotate([0,90,0]) cylinder(d=SPK_D+5, h=7); // speaker boss (just in front of the ear)
         }
         translate([hx, hy, POD_Z0-1]) clr(POD[2]+2);                                    // hinge screw
