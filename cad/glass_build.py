@@ -149,7 +149,14 @@ def lights():
 STL = os.path.join(HERE, 'stl')
 EX = 31.5                                   # PD/2
 LENS_IN = [(6, 6), (50, 6), (52, -2), (48, -14), (40, -20), (20, -21), (9, -17), (5, -6)]
-COMB = (EX, 13, 6.5)                        # beam splitter centre (SCAD: COMB)
+COMB = (EX, 13, 6.5)                        # beam splitter centre (SCAD: COMB), in the unwrapped right frame
+WRAP = math.radians(6)                      # SCAD: WRAP — each half rotated about Z at the bridge
+
+def wrap(p, side=1):
+    """Rotate a point of the right (side=1) / left (side=-1) half about Z by -side*WRAP (as glass.scad does)."""
+    a = -side * WRAP
+    x, y, z = p
+    return (x * math.cos(a) - y * math.sin(a), x * math.sin(a) + y * math.cos(a), z)
 
 def import_stl(name, m, parent):
     bpy.ops.wm.stl_import(filepath=os.path.join(STL, name + '.stl'))
@@ -167,7 +174,7 @@ def outline_mesh(name, pts, y0, y1, m, mirror, parent):
 
 def build_glasses():
     root = bpy.data.objects.new('GLASS', None); bpy.context.collection.objects.link(root)
-    for n in ('front', 'pod_r', 'pod_l', 'temple_r', 'temple_l'):
+    for n in ('front', 'temple_r', 'temple_l'):
         import_stl(n, M_FRAME, root)
     for n in ('lid_r', 'lid_l'):
         import_stl(n, M_FRAME2, root)
@@ -175,18 +182,18 @@ def build_glasses():
     for side, mirror in (('R', False), ('L', True)):
         outline_mesh(f'lens_{side}', LENS_IN, 0.4, 2.4, M_LENS, mirror, root)
     # beam splitter hanging below the hood, 45 deg about Z
-    comb = box('combiner', COMB, (30, 1.6, 30), M_COMB, 0.2, rot=(0, 0, math.radians(45)), parent=root)
+    comb = box('combiner', wrap(COMB), (30, 1.6, 30), M_COMB, 0.2, rot=(0, 0, math.radians(45) - WRAP), parent=root)
     # HUD content on the eye side of the plate (upper part, where the beam lands)
-    bpy.ops.object.text_add(location=(COMB[0], COMB[1], COMB[2] + 5)); t = bpy.context.object; t.name = 'hud_text'
+    bpy.ops.object.text_add(location=wrap((COMB[0], COMB[1], COMB[2] + 5))); t = bpy.context.object; t.name = 'hud_text'
     t.data.body = '12:34\nGLASS'; t.data.size = 4; t.data.align_x = 'CENTER'; t.data.align_y = 'CENTER'
     t.data.extrude = 0.1; t.data.materials.append(M_HUD)
-    t.rotation_euler = Euler((math.radians(90), 0, math.radians(225)), 'XYZ')
-    t.location = Vector((COMB[0], COMB[1], COMB[2] + 5)) + Vector((-0.7, 0.7, 0))
+    t.rotation_euler = Euler((math.radians(90), 0, math.radians(225) - WRAP), 'XYZ')
+    t.location = Vector(wrap((COMB[0], COMB[1], COMB[2] + 5))) + Vector((-0.7, 0.7, 0))
     t.parent = root
     # camera lens glass in the right pod's front wall, status LED on the left pod
-    cyl('cam_glass', (88, 27.3, 31), 2.8, 0.6, M_CAM, 'Y', root)
-    cyl('button_cap', (78, -8, 38.3), 3.4, 1.2, M_FRAME2, 'Z', root)
-    cyl('led', (-88, 27.3, 31), 1.3, 0.6, M_LED, 'Y', root)
+    cyl('cam_glass', wrap((88, 27.3, 31)), 2.8, 0.6, M_CAM, 'Y', root); bpy.context.object.rotation_euler.z = -WRAP
+    cyl('button_cap', wrap((78, -8, 38.3)), 3.4, 1.2, M_FRAME2, 'Z', root)
+    cyl('led', wrap((-88, 27.3, 31), -1), 1.3, 0.6, M_LED, 'Y', root); bpy.context.object.rotation_euler.z = WRAP
     return root
 
 # --------------------------------------------------------------- mannequin ---

@@ -1,28 +1,32 @@
-# do-druku — przymiarka v0.2 (bez elektroniki)
+# do-druku — przymiarka v0.3 (bez elektroniki)
 
-Zestaw do sprawdzenia dopasowania na głowie. Bez pokrywek podów (niepotrzebne do przymiarki)
-i bez śrubek: zamiast M2,5 są drukowane kołki. Folder jest kopią `cad/stl/` — źródłem jest `cad/glass.scad`.
+Trzy części + 2 śrubki M2,5×12. Pody są zrośnięte z frontem (v0.2 miało osobne pody, które nie trzymały).
+Folder jest kopią `cad/stl/` — źródłem jest `cad/glass.scad`.
 
 | Plik | Szt. | Orientacja na stole | Podpory |
 |---|---|---|---|
-| `front.stl` | 1 | **tyłem do stołu** (płaska płaszczyzna y=0 w dół, daszek do góry) | tylko pod noskówkami (wystają 4,5 mm za tył), auto-podpory OK |
-| `pod_r.stl`, `pod_l.stl` | 1+1 | **na ściance wewnętrznej** (ta z prostokątnym gniazdem), otwarta komora do góry | małe pod kostkami zawiasu z tyłu |
-| `temple_r.stl`, `temple_l.stl` | 1+1 | **na boku** (płasko, szeroką ścianą do stołu), hak leży | pod hakiem trochę, auto OK |
-| `pegs.stl` | 1 (6 kołków) | leżą płasko, jak wyeksportowane | brak |
+| `front.stl` | 1 | **tyłem do stołu** (płaska strona, ta od twarzy, w dół) | auto (tree): pod tylnymi połówkami podów i pod noskówkami |
+| `temple_r.stl`, `temple_l.stl` | 1+1 | **płasko na boku** (szeroką ścianą do stołu) | trochę pod zagięciem, auto OK |
 
-Ustawienia: PLA (czarny/ciemnoszary), 0,2 mm, **3 ścianki**, wypełnienie 20 %, bez rafu pod frontem.
-Skala: **1:1, nic nie skalować.** Cały model jest policzony dla PD = 62 mm (roboczo).
+Ustawienia: PLA, 0,2 mm, **3 ścianki**, wypełnienie 20 %. Skala 1:1 (model dla PD = 62 mm, roboczo).
+Front ma 200 mm szerokości — na X1C wchodzi po przekątnej lub wzdłuż X.
 
-## Montaż do przymiarki
+## Montaż
 
-1. Końcówka daszka (prawa strona frontu) wchodzi w prostokątne gniazdo prawego poda; lewy koniec belki w gniazdo lewego poda. Cztery **krótkie kołki (10 mm)** wciskasz od spodu podów w otwory — wchodzą ciasno, lekko rozwiercić 2 mm wiertłem, jeśli nie chcą.
-2. Zausznik: kostka zausznika między dwie kostki poda, **długi kołek (43 mm)** z góry przez wszystkie trzy. Ma się obracać.
-3. Jeśli masz jakiekolwiek śrubki M2,5 lub M3 — kołki są tylko zastępstwem.
+1. Zausznik: jego kostka wchodzi między dwie kostki z tyłu poda (dolna jest gwintowana przez śrubę).
+2. **M2,5×12 z góry** przez górną kostkę poda, kostkę zausznika, wkręcasz w dolną kostkę. Otwór 2,4 mm — śruba sama nacina gwint w PLA. Zausznik ma się obracać; jak śruba trze, poluzuj ćwierć obrotu.
+3. Pokrywek podów nie drukujemy do przymiarki (są w `cad/stl/lid_*.stl`, 4 × M2,5 każda, na potem).
 
-## Co sprawdzić po założeniu i zapisać (mm)
+## Zmiany od v0.2 (po pierwszej przymiarce Jurka)
 
-- Czy noskówki dotykają nosa symetrycznie, czy oprawka opada / uciska.
-- Odległość szkieł od rzęs (ma być ≥ 8 mm). Jeśli za blisko → `VD` w SCAD w górę.
-- Czy zauszniki uciskają głowę przed uszami (→ `TEMPLE_SPLAY` w górę) albo są luźne (w dół).
-- Gdzie zaczyna się zgięcie względem góry ucha (→ `TEMPLE_L`).
-- Czy pody nie dotykają skroni.
+- pody zrośnięte z frontem: zero złącza, zero kołków od spodu, zero dziur w narożnikach
+- tylko M2,5×12; otwory 2,4 (gwint) / 2,9 (przelot)
+- front wygięty 6° (każda połowa przy mostku), większe otwory na szkła
+- zauszniki: jedna gładka krzywa ze zwężeniem
+- nic nie wchodzi od spodu
+
+## Co sprawdzić po założeniu
+
+- Czy nadal widać obręcze w polu widzenia → ewentualnie `WRAP` 6 → 9 albo `VD` 18 → 16.
+- Noskówki: symetria, czy oprawka opada.
+- Zauszniki: ucisk przed uszami (`TEMPLE_SPLAY`), miejsce zgięcia (`TEMPLE_L`), czy hak trzyma za uchem.
