@@ -89,8 +89,9 @@ module head(l=3) cylinder(d=S_HEAD, h=l);
 // ================================================================= FRONT ====
 module front_solid() {
     for (m=[false,true]) plate(FRONT_T) offset(r=5) lens2d(m);                 // rims
-    translate([-HOOD_X1, 0, BAR_Z0]) cube([2*HOOD_X1, FRONT_T, BAR_Z1-BAR_Z0]); // brow bar
-    translate([HOOD_X0, 0, BAR_Z0]) cube([HOOD_X1-HOOD_X0, HOOD_D, BAR_Z1-BAR_Z0]); // hood
+    // brow bar and hood: rounded on the visible edges, flat at the back (y=0) and at the plug ends
+    intersection() { rboxc([-HOOD_X1-4, -6, BAR_Z0], [2*HOOD_X1+8, FRONT_T+6, BAR_Z1-BAR_Z0], 2.5); translate([-HOOD_X1, 0, BAR_Z0-1]) cube([2*HOOD_X1, FRONT_T, BAR_Z1-BAR_Z0+2]); }
+    intersection() { rboxc([HOOD_X0, -6, BAR_Z0], [HOOD_X1-HOOD_X0+6, HOOD_D+6, BAR_Z1-BAR_Z0], 3); translate([HOOD_X0, 0, BAR_Z0-1]) cube([HOOD_X1-HOOD_X0, HOOD_D, BAR_Z1-BAR_Z0+2]); }
     // plug ends: right = hood end (x 66..70), left = bar end (x -66..-76)
     translate([HOOD_X1, 0, BAR_Z0]) cube([4, HOOD_D, BAR_Z1-BAR_Z0]);
     translate([-HOOD_X1-10, 0, BAR_Z0]) cube([10, FRONT_T, BAR_Z1-BAR_Z0]);
@@ -118,7 +119,7 @@ module front_cuts() {
 module front() difference() { front_solid(); front_cuts(); }
 
 // ================================================================== PODS ====
-module pod_shell(s) rboxc([s>0 ? POD_CX-POD[0]/2 : -POD_CX-POD[0]/2, POD_CY-POD[1]/2, POD_Z0], POD, 4);
+module pod_shell(s) rboxc([s>0 ? POD_CX-POD[0]/2 : -POD_CX-POD[0]/2, POD_CY-POD[1]/2, POD_Z0], POD, 7);
 module pod_cavity(s) {
     x0 = s>0 ? POD_CX-POD[0]/2+WALL : -POD_CX-POD[0]/2-1;   // open toward the outer side (lid)
     translate([x0, POD_CY-POD[1]/2+WALL, POD_Z0+WALL]) cube([POD[0]-WALL+1, POD[1]-2*WALL, POD[2]-2*WALL]);
@@ -209,7 +210,7 @@ module temple_body(s) {
                 translate([hx, hy, POD_Z0+8.3]) cylinder(r=4.5, h=POD[2]-16.6);
                 rboxc([hx-TEMPLE_W/2, hy-14, TEMPLE_Z-TEMPLE_H/2], [TEMPLE_W, 8, TEMPLE_H], 2);
             }
-            rboxc([hx-TEMPLE_W/2, hy-TEMPLE_L, TEMPLE_Z-TEMPLE_H/2], [TEMPLE_W, TEMPLE_L-6, TEMPLE_H], 2.5); // arm
+            rboxc([hx-TEMPLE_W/2, hy-TEMPLE_L, TEMPLE_Z-TEMPLE_H/2], [TEMPLE_W, TEMPLE_L-6, TEMPLE_H], 4); // arm
             // ear hook: drops EAR_DROP over ~30 mm, then curls down behind the ear
             hull() { translate([hx, hy-TEMPLE_L+3, TEMPLE_Z]) sphere(r=4.5, $fn=24); translate([hx, hy-TEMPLE_L-30, TEMPLE_Z-EAR_DROP+2]) sphere(r=4, $fn=24); }
             hull() { translate([hx, hy-TEMPLE_L-30, TEMPLE_Z-EAR_DROP+2]) sphere(r=4, $fn=24); translate([hx, hy-TEMPLE_L-40, TEMPLE_Z-EAR_DROP-16]) sphere(r=3.5, $fn=24); }
@@ -241,6 +242,14 @@ module ghosts() {
     color("yellow", 0.3) translate([COMB[0]-BEAM_W/2, -VD, BEAM_Z-5.45]) cube([BEAM_W, COMB[1]+VD, 10.9]);
 }
 
+// ================================================================== PEGS ====
+// Printed substitutes for the M2.5 screws, for the fit test only (print flat).
+module peg(d, l) { rotate([0,90,0]) union() { cylinder(d=d, h=l); translate([0,0,-1.8]) cylinder(d=5, h=1.8); } }
+module pegs() {
+    for (i=[0:1]) translate([0, i*8, 0]) peg(2.7, POD[2]+1);     // 2x hinge pins (through the knuckles, 43 mm)
+    for (i=[0:3]) translate([0, 16+i*8, 0]) peg(2.35, 10);       // 4x pod-to-front pegs (press-fit into the 2.2 mm holes)
+}
+
 // ================================================================== HEAD ====
 module head_ghost() { // scan frame: origin between the pupils on the cornea plane -> shift back by VD
     %translate([0, -VD, 0]) import(head_file);
@@ -263,5 +272,6 @@ else if (part == "lid_r") lid(1);
 else if (part == "lid_l") lid(-1);
 else if (part == "temple_r") temple(1);
 else if (part == "temple_l") temple(-1);
+else if (part == "pegs") pegs();
 else if (part == "fit") { %front(); %pod(1); %pod(-1); ghosts(); }
 else assembly();
