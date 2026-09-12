@@ -6,7 +6,14 @@
    "note": "Flat back for printing, hinge with a through bore and 0.6 mm clearance, lens seat as a blind pocket.",
    "frames": 96,
    "placeholder": true
+  },
+  {
+   "version": "v0.6",
+   "date": "2026-09-12",
+   "note": "Single-fold optics: OLED and mirror in the hood, lens in the floor, 25 mm splitter on the pupil axis. Flat back, screwed lids, folding temples.",
+   "frames": 96,
+   "placeholder": true
   }
  ],
- "current": "v0.5"
+ "current": "v0.6"
 }
