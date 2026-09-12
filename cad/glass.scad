@@ -1,313 +1,268 @@
-// Gzowo Glass — print-ready parametric frame (OpenSCAD 2021.01)
+// Gzowo Glass v0.6 — print-ready parametric frame (OpenSCAD 2021.01)
 // ---------------------------------------------------------------------------
 // Frame of reference (mm): X = wearer's right, Y = forward (away from the
 // face), Z = up. The right pupil axis is the line (PD/2, *, 0). The back face
 // of the front frame is the plane y = 0; the cornea sits at y = -VD.
 //
-// Architecture
-//   FRONT  rims + brow bar + right "hood" (beam channel, lens seat, beam
-//          splitter slot). One flat print, back face on the bed.
-//   PODS   rigid boxes screwed to both ends of the front (no hinge in the
-//          optical path, no wire crosses a hinge except the speaker pair).
-//          right pod: XIAO ESP32-S3 Sense (camera to the front wall), 0.96"
-//          OLED facing +Y, 30x15 fold mirror at 45°, MAX98357 at the back,
-//          push button on top, USB-C through the lid.
-//          left pod: battery (counterweight) + status LED.
-//   TEMPLES hinged at the rear of each pod (M2.5x12 screws as pins), speaker
-//          in the right temple at the ear.
-//   LIDS   outer plates of the pods, 4x M2.5 each.
-//
-// Optical path (v0.4, HUD on the line of sight):
-//   OLED (right pod, mounted PORTRAIT, screen facing +Y) -> mirror 1 (45° about Z)
-//   -> beam along -X through the lens f=50 (pod inner wall) and the hood
-//   -> mirror 2 in the hood above the eye (45° about Y) -> beam straight DOWN
-//   -> beam splitter tilted 45° about X in front of the right eye, centred on
-//   the pupil axis -> eye. OLED->lens = 42 mm => virtual image ~26 cm away.
-//   Two 90° folds rotate the image twice, hence the portrait OLED.
-// Electronics: LEFT pod = XIAO ESP32-S3 Sense (camera through the front wall,
-//   USB-C through the top) + battery; RIGHT pod = OLED, mirror 1, lens, MAX98357.
-//   Battery/I2C/I2S wires run in the groove along the back of the brow bar.
+// v0.6 rewrite after the gauntlet review (work/gauntlet/findings):
+//   * SINGLE-FOLD OPTICS. The OLED stands in the hood (screen facing -X, long
+//     axis along Z) on a slide rail x 60..66 (focus). One first-surface mirror
+//     at 45° about Y turns the beam down; the lens f=50 sits in the hood floor
+//     right above the beam splitter; the splitter (25x25) is tilted 45° about
+//     X on the pupil axis. Two reflections -> upright, un-mirrored image.
+//     do = 38..44 mm, lens->eye 47 mm, FOV ~24.7° x 12.5°, image 20..39 cm.
+//   * Everything that holds a part is a POSITIVE feature (rails, ribs, floor
+//     boss), never a slot that thins a 1.6 mm wall.
+//   * The hood and both pods are open at the TOP and closed by lids (M2.5x12,
+//     tapped bosses). Print the front UPSIDE DOWN (+Z on the bed): the open
+//     cavities face the bed, so the front needs no internal supports.
+//   * Pods are fused into the bar/hood with a 2 mm overlap (one solid).
+//   * Hinge: bottom knuckle 8 (tapped), temple 5, top 2, gaps 0.5, M2.5x12
+//     from the top, 4 mm of thread, head proud. Temples splay OUTWARD.
+//   * Wire groove 5x5 on the back of a thicker (8 mm) bar, ends at the hood.
+//   * Tinted lens in front of the combiner is a v0.7 item (contrast x5).
+// Electronics: LEFT pod = XIAO ESP32-S3 Sense (camera front, USB-C up) +
+//   battery. RIGHT pod = MAX98357 + button (in the lid). HOOD = OLED + mirror + lens.
 // ---------------------------------------------------------------------------
 
-part = "assembly";   // front | pod_r | pod_l | lid_r | lid_l | temple_r | temple_l | assembly | fit
+part = "assembly";   // front | lid_hood | lid_r | lid_l | temple_r | temple_l | assembly | fit | layout | exploded
 show_parts = true;   // ghost electronics/optics in assembly/fit
-show_head = true;    // ghost of Jurek's head scan (reference/head-mm.stl, cornea plane at y=0 in its own frame)
-$fn = 40;
+show_head = true;    // ghost of Jurek's head scan (reference/head2-mm.stl)
+head_file = "../reference/head2-mm.stl";
+$fn = 48;
 
 // ------------------------------------------------------------ head / fit ---
-PD       = 62;    // pupil distance (provisional; scan scaled to this — replace with the measured value)
-VD       = 18;    // vertex distance (cornea -> frame back); 18 because the nose dorsum reaches y=18 at z=-6 (scan)
-DBL      = 18;    // distance between lenses (bridge width)
-PAD_X    = 11;    // nose pad centre x (flank of the nose at z=-10, scan: nose y=14 at x~+-9..10)
-PAD_ANG  = 32;    // nose pad face angle about Z (deg)
-TEMPLE_L = 63;    // hinge -> start of the ear bend (scan: ear top 87 mm behind the cornea; Jurek: ears sit a bit further back)
-EAR_DROP = 24;    // temple z (19) -> ear top z (-4) from the scan
+PD       = 62;    // pupil distance (provisional; scan scaled to this)
+VD       = 21;    // vertex distance: cornea -> frame back (v0.6: 18 -> 21, the bridge sat inside the nose)
+DBL      = 18;    // distance between lenses
+PAD_X    = 11.5;  // nose pad centre x
+PAD_ANG  = 40;    // pad face angle about Z (deg): face points outward-and-forward like the nose flank
+PAD_TILT = 22;    // pad face tilt about X (deg): flank leans back toward the eye
+TEMPLE_L = 63;    // hinge -> start of the ear bend
+EAR_DROP = 24;    // temple z -> ear top
+TEMPLE_SPLAY = 15; // deg, temples open OUTWARD from the hinge (v0.4 had the sign inverted)
 EX       = PD/2;
 
 // ------------------------------------------------------- component sizes ---
-XIAO     = [21, 17.8, 15];      // XIAO ESP32-S3 Sense stack incl. camera (footprint x,y; height z)
-OLED_PCB = [27.3, 27.3, 4.3];   // 0.96" I2C module; active area sits ~4 mm below board centre
+XIAO     = [21, 17.8, 15];      // XIAO ESP32-S3 Sense stack incl. camera board (x, y footprint; z height of the stack)
+OLED_PCB = [27.3, 27.3, 4.3];   // 0.96" I2C module board (w, h, thickness incl. pins). Active area 21.7x10.9.
 AMP      = [19.4, 17.8, 3.2];   // MAX98357 breakout
 SPK_D    = 20;  SPK_T = 3.6;    // speaker
-BS       = [30, 30, 1.6];       // beam splitter plate (thickness assumed; slot = 2.2)
-MIR      = [30, 30, 1.6];       // fold mirrors (first-surface), 2 pcs: pod (about Z) and hood (about Y)
-LENS_D   = 30;  LENS_T = 6.5;   // biconvex f=50, centre thickness ~6
-BTN      = [6, 6, 5];           // tact switch
-BAT      = [40, 20, 8];         // battery pocket (y, z, x) -> edit when the cell is known
-S_TAP    = 2.4;  S_CLR = 2.9;  S_HEAD = 5.4;   // M2.5x12 in printed PLA: self-tap / clearance / head (Jurek: 2.2 was far too tight)
-WRAP     = 0;     // deg, face-form wrap. 0 = flat back for printing (Jurek, v0.5: wrap made the front unprintable)
+BS       = [25, 25, 1.1];       // beam splitter plate (v0.6: 25x25; a 30 mm plate collided with the lens)
+MIR      = [30, 30, 1.6];       // first-surface mirror, 1 pc
+LENS_D   = 30;  LENS_T = 6.5;   // biconvex f=50
+BTN      = [6, 6, 5];           // tact switch body
+BAT      = [40, 20, 8];         // battery pocket (y, z, x): edit when the cell is known
+S_TAP    = 2.4;  S_CLR = 2.9;  S_HEAD = 5.4;  // M2.5x12 in PLA
 CLR      = 0.4;  WALL = 1.6;
 
 // ---------------------------------------------------------------- layout ---
-FRONT_T  = 6;                  // front plate depth (y 0..6)
-BAR_Z0   = 6;   BAR_Z1 = 22;   // brow bar z-range (16 tall)
-BEAM_Z   = 18;                 // optical axis height inside the hood (beam is 22 tall there)
-BEAM_H   = 22.4;               // beam extent along z in the hood (OLED long side 21.7 + margin)
-BEAM_W   = 11.4;               // beam extent along y in the hood (OLED short side 10.9 + margin)
-COMB     = [EX, 16, 0];        // beam splitter centre: on the pupil axis, 16 mm in front of the frame back
-HOOD_X0  = 15;  HOOD_X1 = 66;  // hood spans the right lens to the pod
-HOOD_Z0  = 5;   HOOD_Z1 = 31;  // hood is taller than the bar (beam 22 + walls)
-HOOD_D   = 33;                 // hood depth: the 30x30 hood mirror at 45° spans y 1..31
-MIR2_C   = [EX, COMB[1], BEAM_Z];    // hood mirror centre: turns the beam down onto the splitter
-OLED_OFF = 2;                        // OLED board centre offset in x (active area is off-centre on the PCB)
-POD      = [32, 64, 42];       // pod size x,y,z (z from POD_Z0); deep enough for the Ø30 lens at y=COMB[1]
-POD_Z0   = -4;                 // pod bottom (lens Ø30 needs room below the beam axis)
-POD_CX   = 82;                 // pod centre x (inner wall at 66, outer at 98)
-POD_CY   = 2;                  // pod y-range -30..34
-LENS_X   = POD_CX-POD[0]/2+WALL+1.2+LENS_T/2+CLR;   // lens centre (axis X): pocket starts 1.2 mm inside the inner wall
-MIR_C    = [POD_CX, COMB[1], BEAM_Z];             // pod mirror centre
-OLED_Y   = MIR_C[1] - (42 - (MIR_C[0] - LENS_X)); // screen plane y: OLED->mirror->lens = 42
-HINGE    = [POD_CX, POD_CY - POD[1]/2 - 4];       // temple hinge axis (x, y), behind the pod
-// hinge stack sized for one M2.5x12 from the top: pod top knuckle 4, temple knuckle 6.5, pod bottom knuckle 5 (tapped)
-HK_Z0 = 12; HK_BOT = 5; HK_TEMPLE = 7; HK_TOP = 5; HK_GAP = 0.6;   // v0.5: gap 0.3 -> 0.6 (temple jammed), knuckles 5/7/5
-TEMPLE_W = 12;  TEMPLE_H = 14;  TEMPLE_Z = 19;
-TEMPLE_SPLAY = 13;  // deg, temples open outward from the hinge (scan: head +-95 at the ears incl. hair, hinge at +-82)
-LID_T    = 2;
+FRONT_T  = 6;                  // rim plate depth (y 0..6)
+BAR_T    = 8;                  // brow bar depth (y 0..8): the 5x5 wire groove leaves a 3 mm web
+BAR_Z0   = 6;   BAR_Z1 = 22;   // brow bar z-range
+GROOVE   = [5, 5];             // wire groove w (z) x d (y), on the back of the bar
+GROOVE_Z = 11;
+// hood (right, over the eye): OLED + mirror + lens, open at the top
+HOOD_X0  = 13;  HOOD_X1 = 68;  // x 13..68 (68 = 2 mm INTO the right pod -> fused); 13 so the Ø30.8 lens pocket leaves a 2 mm end wall
+HOOD_Y1  = 35;                 // depth y 0..35 (lens pocket Ø30.8 around y = 17.5 leaves 2 mm walls)
+HOOD_Z0  = 4;   HOOD_Z1 = 38;  // z 4..38
+BEAM_Z   = 22;                 // optical axis height in the hood
+AX_Y     = 17.5;               // optical axis y (mirror, lens, splitter all on y = 17.5)
+MIR_C    = [EX, AX_Y, BEAM_Z]; // mirror centre; plane at 45° about Y turns the -X beam to -Z
+LENS_Z   = 13.4;               // lens centre z (axis Z)
+COMB     = [EX, AX_Y, 0];      // splitter centre on the pupil axis, tilted 45° about X, top toward +Y
+OLED_X0  = 60;  OLED_X1 = 66;  // OLED slide range (screen face x): do = (x-EX) + (BEAM_Z-LENS_Z) = 37.1..43.1
+OLED_X   = 63;                 // nominal -> do = 40.1
+// pods
+POD_R    = [30, 46, 42];       // right pod (amp + button + wires)
+POD_L    = [32, 64, 42];       // left pod (XIAO + battery)
+POD_Z0   = -4;
+POD_RX   = 66 + POD_R[0]/2;    // right pod centre x (inner wall at 66)
+POD_LX   = -(66 + POD_L[0]/2);
+POD_RY   = 6;                  // right pod y-range -17..29
+POD_LY   = 2;                  // left pod y-range -30..34
+// hinge, M2.5x12 from the top: bottom knuckle 8 tapped, temple 5, top 2, gaps 0.5 -> 4 mm of thread, head proud
+HK_Z0 = 12; HK_BOT = 8; HK_TEMPLE = 5; HK_TOP = 2; HK_GAP = 0.5;
+HK_R  = 5;                     // knuckle radius (bore 2.9 -> 3.5 mm wall)
+TEMPLE_W = 12;  TEMPLE_H = 14;
+LID_T    = 2.4;
+BACK_W   = WALL + 1.4;         // pod back wall 3 mm (carries the hinge)
 
 // --------------------------------------------------------------- helpers ---
-module rbox(size, r=2) { // rounded box centred at origin
-    hull() for (i=[-1,1], j=[-1,1], k=[-1,1])
-        translate([i*(size[0]/2-r), j*(size[1]/2-r), k*(size[2]/2-r)]) sphere(r=r, $fn=20);
-}
-module rboxc(p, size, r=2) translate(p + size/2) rbox(size, r);   // rounded box from corner p
+module rbox(size, r=2) { hull() for (i=[-1,1], j=[-1,1], k=[-1,1]) translate([i*(size[0]/2-r), j*(size[1]/2-r), k*(size[2]/2-r)]) sphere(r=r, $fn=48); }
+module rboxc(p, size, r=2) translate(p + size/2) rbox(size, r);
 module plate(d) rotate([90,0,0]) translate([0,0,-d]) linear_extrude(height=d) children(); // 2D (x,z) -> +y 0..d
-module lens2d(mir=false) // wayfarer opening, right eye; mirrored for the left
-    scale([mir ? -1 : 1, 1]) offset(r=3) offset(r=-3)
-        polygon([[DBL/2,6],[54,6],[56,-3],[52,-17],[42,-24],[22,-25],[DBL/2+4,-20],[DBL/2,-7]]);
+module lens2d(mir=false) scale([mir ? -1 : 1, 1]) offset(r=3) offset(r=-3)
+    polygon([[DBL/2,6],[54,6],[56,-3],[52,-17],[42,-24],[22,-25],[DBL/2+4,-20],[DBL/2,-7]]);
 module tap(l)  cylinder(d=S_TAP, h=l);
 module clr(l)  cylinder(d=S_CLR, h=l);
 module head(l=3) cylinder(d=S_HEAD, h=l);
+function pod_c(s)   = s>0 ? [POD_RX, POD_RY, POD_Z0+POD_R[2]/2] : [POD_LX, POD_LY, POD_Z0+POD_L[2]/2];
+function pod_sz(s)  = s>0 ? POD_R : POD_L;
+function hinge_x(s) = pod_c(s)[0];
+function hinge_y(s) = pod_c(s)[1] - pod_sz(s)[1]/2 - 5;   // axis 5 mm behind the pod back wall
+function hood_boss_pts() = [[HOOD_X0+WALL+3, WALL+3], [HOOD_X1-WALL-3, WALL+3], [HOOD_X0+WALL+3, HOOD_Y1-WALL-3], [HOOD_X1-WALL-3, HOOD_Y1-WALL-3]];
+function pod_boss_pts(s) = let(c = pod_c(s), sz = pod_sz(s))
+    [[c[0]-sz[0]/2+WALL+3, c[1]-sz[1]/2+BACK_W+3], [c[0]+sz[0]/2-WALL-3, c[1]-sz[1]/2+BACK_W+3],
+     [c[0]-sz[0]/2+WALL+3, c[1]+sz[1]/2-WALL-3],   [c[0]+sz[0]/2-WALL-3, c[1]+sz[1]/2-WALL-3]];
 
 // ================================================================= FRONT ====
-module front_solid() {
-    for (m=[false,true]) plate(FRONT_T) offset(r=5) lens2d(m);                 // rims
-    // brow bar and hood: rounded on the visible edges, flat at the back (y=0) and at the plug ends
-    intersection() { rboxc([-HOOD_X1-4, -6, BAR_Z0], [2*HOOD_X1+8, FRONT_T+6, BAR_Z1-BAR_Z0], 2.5); translate([-HOOD_X1, 0, BAR_Z0-1]) cube([2*HOOD_X1, FRONT_T, BAR_Z1-BAR_Z0+2]); }
-    intersection() { rboxc([HOOD_X0, -6, HOOD_Z0], [HOOD_X1-HOOD_X0+6, HOOD_D+6, HOOD_Z1-HOOD_Z0], 3); translate([HOOD_X0, 0, HOOD_Z0-1]) cube([HOOD_X1-HOOD_X0, HOOD_D, HOOD_Z1-HOOD_Z0+2]); }
-    // nose pads: angled saddle faces on the nose flanks (z -16..-4), protruding 4 mm behind the frame back
-    for (s=[-1,1]) translate([s*PAD_X, -1, -10]) rotate([0,0,-s*PAD_ANG]) rbox([3.2, 7, 13], 1.2);
-    for (s=[-1,1]) hull() { translate([s*PAD_X, -1, -10]) rotate([0,0,-s*PAD_ANG]) rbox([3.2, 7, 13], 1.2); translate([s*(DBL/2+2), 3, -8]) rbox([3, 5, 9], 1); }
+module rims() difference() {
+    for (m=[false,true]) plate(FRONT_T) offset(r=5) lens2d(m);
+    for (m=[false,true]) { translate([0,-1,0]) plate(FRONT_T+2) lens2d(m); translate([0,-1,0]) plate(3.4) offset(r=1) lens2d(m); }
 }
-module front_cuts() {
-    for (m=[false,true]) {
-        translate([0,-1,0]) plate(FRONT_T+2) lens2d(m);              // opening
-        translate([0,-1,0]) plate(3.4) offset(r=1) lens2d(m);        // 2.4 mm rebate from the back for the tinted lens
+module bar() intersection() { rboxc([-70, -4, BAR_Z0], [140, BAR_T+4, BAR_Z1-BAR_Z0], 2.5); translate([-70, 0, BAR_Z0-1]) cube([140, BAR_T, BAR_Z1-BAR_Z0+2]); }
+module nose_pads() for (s=[-1,1]) hull() {
+    translate([s*PAD_X, -1.5, -10]) rotate([PAD_TILT, 0, s*PAD_ANG]) rbox([3.2, 7, 13], 1.2);
+    translate([s*(DBL/2+2.5), 3, -8]) rbox([3, 5, 9], 1);
+}
+module hood_shell() intersection() { rboxc([HOOD_X0, -4, HOOD_Z0], [HOOD_X1-HOOD_X0, HOOD_Y1+4, HOOD_Z1-HOOD_Z0], 3); translate([HOOD_X0, 0, HOOD_Z0-1]) cube([HOOD_X1-HOOD_X0, HOOD_Y1, HOOD_Z1-HOOD_Z0+2]); }
+module hood_cavity() translate([HOOD_X0+WALL, WALL, HOOD_Z0+WALL]) cube([HOOD_X1-HOOD_X0-2*WALL, HOOD_Y1-2*WALL, HOOD_Z1]);   // open at the top
+module hood_holders() {
+    // OLED rails: rib pairs on the front and back cavity walls; the board slides along x between them
+    for (y=[WALL, HOOD_Y1-WALL-1.2]) for (dz=[-1,1]) {
+        zc = BEAM_Z + dz*(OLED_PCB[1]/2 + CLR + 0.6);
+        translate([OLED_X0-3, y, zc-0.6]) cube([OLED_X1-OLED_X0+OLED_PCB[2]+4, 1.2, 1.2]);
     }
-    // horizontal beam channel: from the pod wall to the hood mirror
-    translate([COMB[0]-BEAM_H/2, COMB[1]-BEAM_W/2, BEAM_Z-BEAM_H/2]) cube([POD_CX-POD[0]/2+WALL+2-COMB[0]+BEAM_H/2, BEAM_W, BEAM_H]);
-    // hood mirror slot: 45° about Y (thin axis x), turns the beam downward
-    translate(MIR2_C) rotate([0,45,0]) cube([MIR[2]+0.6, MIR[0]+0.8, MIR[1]+0.8], center=true);
-    // vertical channel down through the hood floor
-    translate([COMB[0]-BEAM_H/2, COMB[1]-BEAM_W/2, HOOD_Z0-1]) cube([BEAM_H, BEAM_W, BEAM_Z-HOOD_Z0+1]);
-    // beam splitter slot: plate tilted 45° about X (top forward), held in the hood floor
-    translate(COMB) rotate([-45,0,0]) cube([BS[0]+0.8, BS[2]+0.6, BS[1]+0.8], center=true);
-    // battery wire groove along the top-back edge of the bar (2.6 x 2.6), left pod -> right pod
-    translate([-HOOD_X1-10, -0.1, BAR_Z1-3.6]) cube([2*HOOD_X1+16, 3.2, 3.7]);   // 9 wires: battery, I2C, I2S
+    // mirror ribs: two rib pairs along the 45° plane, 2.4 mm apart; the mirror slides in from the top
+    for (y=[WALL+0.6, HOOD_Y1-WALL-0.6]) for (d=[-1,1])
+        translate([MIR_C[0], y, MIR_C[2]]) rotate([0,-45,0]) translate([0, 0, d*(MIR[2]/2+CLR+0.6)]) cube([MIR[0]+2, 1.2, 1.2], center=true);
+    // lens floor boss: the pocket gets a real floor and a beam window
+    translate([EX, AX_Y, HOOD_Z0]) cylinder(d=LENS_D+2*CLR+2.4, h=LENS_Z-LENS_T/2-CLR-HOOD_Z0);
+    for (p=hood_boss_pts()) translate([p[0]-3, p[1]-3, HOOD_Z1-10]) cube([6, 6, 10]);
 }
-module frame_only() difference() { front_solid(); front_cuts(); }
-module half(s) { // everything of one side, in the unwrapped frame: half of the frame + its pod
-    intersection() { frame_only(); translate([s>0 ? -2 : -300, -50, -60]) cube([302, 120, 120]); }
-    pod(s);
+module hood_cuts() {
+    translate([EX, AX_Y, LENS_Z-LENS_T/2-CLR]) cylinder(d=LENS_D+2*CLR, h=HOOD_Z1);                 // lens pocket from above
+    translate([EX-11, AX_Y-7, HOOD_Z0-1]) cube([22, 14, LENS_Z]);                                    // beam window 22x14
+    translate(COMB) rotate([-45,0,0]) cube([BS[0]+0.8, BS[2]+0.6, BS[1]+6], center=true);           // splitter slot through the floor
+    translate(COMB) rotate([-45,0,0]) translate([0, -(BS[2]+0.6)/2-1.5, 0]) cube([BS[0]+0.8, 3, BS[1]+6], center=true); // no knife edge at the mouth
+    translate([HOOD_X0-1, -0.1, GROOVE_Z]) cube([WALL+2, GROOVE[1]+0.1, GROOVE[0]]);                // wires: bar groove -> hood
+    translate([HOOD_X1-WALL-3, AX_Y-14, HOOD_Z0+WALL]) cube([WALL+6, 6, 5]);                         // wires: hood -> right pod
+    for (p=hood_boss_pts()) translate([p[0], p[1], HOOD_Z1-9]) tap(10);
 }
-module front() { // fused front: both halves wrapped by WRAP about the bridge, plus the bridge itself
-    rotate([0,0,-WRAP]) half(1);
-    rotate([0,0, WRAP]) half(-1);
-    intersection() { frame_only(); translate([-10, -20, -40]) cube([20, 60, 80]); }
-}
-module temple_wrapped(s) rotate([0,0,-s*WRAP]) temple(s);
-module lid_wrapped(s) rotate([0,0,-s*WRAP]) lid(s);
-
-// ================================================================== PODS ====
-module pod_shell(s) rboxc([s>0 ? POD_CX-POD[0]/2 : -POD_CX-POD[0]/2, POD_CY-POD[1]/2, POD_Z0], POD, 3.5);
-module pod_cavity(s) { // rounded cavity, open toward the outer side (lid)
-    x0 = s>0 ? POD_CX-POD[0]/2+WALL : -POD_CX-POD[0]/2-2;
-    rboxc([x0, POD_CY-POD[1]/2+WALL, POD_Z0+WALL], [POD[0]-WALL+2, POD[1]-2*WALL, POD[2]-2*WALL], 2);
-}
-module lid_bosses(s) { // corner bosses with tapped holes for the lid screws
-    ox = s>0 ? POD_CX+POD[0]/2 : -(POD_CX+POD[0]/2);
-    for (y=[POD_CY-POD[1]/2+WALL, POD_CY+POD[1]/2-WALL-6]) for (z=[POD_Z0+WALL, POD_Z0+POD[2]-WALL-6])
-        difference() {
-            translate([s>0 ? ox-LID_T-8 : ox+LID_T, y, z]) cube([8, 6, 6]);
-            translate([s>0 ? ox-LID_T-9 : ox+LID_T-1, y+3, z+3]) rotate([0,90,0]) tap(10);
-        }
-}
-module hinge_knuckles(s) { // pod side: bottom (tapped) and top (clearance) knuckles, M2.5x12 from the top
-    hx = s*HINGE[0];
+module pod_shell(s) { c = pod_c(s); sz = pod_sz(s); rboxc([c[0]-sz[0]/2, c[1]-sz[1]/2, POD_Z0], sz, 3); }
+module pod_cavity(s) { c = pod_c(s); sz = pod_sz(s); translate([c[0]-sz[0]/2+WALL, c[1]-sz[1]/2+BACK_W, POD_Z0+WALL]) cube([sz[0]-2*WALL, sz[1]-WALL-BACK_W, sz[2]]); }
+module hinge_knuckles(s) {
+    hx = hinge_x(s); hy = hinge_y(s);
     for (z=[[HK_Z0, HK_Z0+HK_BOT], [HK_Z0+HK_BOT+HK_TEMPLE+2*HK_GAP, HK_Z0+HK_BOT+HK_TEMPLE+2*HK_GAP+HK_TOP]]) hull() {
-        translate([hx, HINGE[1], z[0]]) cylinder(r=4.5, h=z[1]-z[0]);
-        translate([hx-4.5, HINGE[1]+3, z[0]]) cube([9, 4, z[1]-z[0]]);
+        translate([hx, hy, z[0]]) cylinder(r=HK_R, h=z[1]-z[0]);
+        translate([hx-HK_R, hy+3, z[0]]) cube([2*HK_R, 11, z[1]-z[0]]);   // block reaches 6 mm into the pod: load path into the side walls
     }
 }
-module pod_right_cuts() {
-    // beam passage through the inner wall to the mirror (front is fused, no socket)
-    translate([POD_CX-POD[0]/2-1, COMB[1]-BEAM_W/2, BEAM_Z-BEAM_H/2]) cube([12, BEAM_W, BEAM_H]);
-    // lens seat: blind cylindrical pocket that stops 1.2 mm short of the inner wall; only the beam window
-    // (cut above) goes through. Lens drops in from the lid side. (v0.5: the old pocket cut through the wall)
-    translate([POD_CX-POD[0]/2+WALL+1.2, COMB[1], BEAM_Z]) rotate([0,90,0]) cylinder(d=LENS_D+2*CLR, h=LENS_T+2*CLR);
-    // OLED slot: board in the XZ plane, PORTRAIT, screen facing +Y; active area off-centre by OLED_OFF in x
-    translate([POD_CX+OLED_OFF-OLED_PCB[0]/2-CLR, OLED_Y-OLED_PCB[2]-CLR, BEAM_Z-OLED_PCB[1]/2-CLR])
-        cube([OLED_PCB[0]+2*CLR+6, OLED_PCB[2]+2*CLR, OLED_PCB[1]+2*CLR]);
-    // pod mirror slot: plane along (1,-1,0), 45° about Z
-    translate(MIR_C) rotate([0,0,-45]) cube([MIR[0]+0.8, MIR[2]+0.6, MIR[1]+0.8], center=true);
-    // push-to-talk button through the top wall
-    translate([POD_CX-6, -20, POD_Z0+POD[2]-WALL-1]) cylinder(d=BTN[0]+1.2, h=WALL+2);
-    // speaker wires to the temple: hole next to the hinge
-    translate([POD_CX+6, POD_CY-POD[1]/2-1, TEMPLE_Z-1.5]) cube([3, WALL+2, 3]);
-    // battery wires from the bar groove
-    translate([POD_CX-POD[0]/2-1, -0.1, BAR_Z1-3.6]) cube([5, 3.2, 3.7]);
+module pod_holders(s) {
+    c = pod_c(s); sz = pod_sz(s);
+    for (p=pod_boss_pts(s)) translate([p[0]-3, p[1]-3, POD_Z0+sz[2]-10]) cube([6, 6, 10]);
+    if (s>0) for (d=[0,1]) translate([c[0]+sz[0]/2-WALL-AMP[2]-2*CLR-1.2 + d*(AMP[2]+2*CLR+1.2), c[1]-AMP[0]/2, POD_Z0+WALL]) cube([1.2, AMP[0], 12]);  // amp ribs
+    if (s<0) for (d=[-1,1]) translate([c[0]+2 + d*(XIAO[0]/2+CLR+0.6) - 0.6, c[1]+sz[1]/2-WALL-XIAO[2]-1, POD_Z0+WALL]) cube([1.2, XIAO[2]+1, 10]); // XIAO ribs
 }
-module pod_left_cuts() {
-    translate([-POD_CX+POD[0]/2-4, -0.1, BAR_Z1-3.6]) cube([5, 3.2, 3.7]);        // wire groove exit
-    translate([-POD_CX+8, POD_CY+POD[1]/2-WALL-1, 30]) rotate([-90,0,0]) cylinder(d=6.5, h=WALL+2);   // camera window (XIAO stands in the left pod)
-    translate([-POD_CX-9, POD_CY+POD[1]/2-WALL-1, 30]) rotate([-90,0,0]) cylinder(d=3.2, h=WALL+2);   // status LED
-    translate([-POD_CX-1, 12, POD_Z0+POD[2]-WALL-1]) rbox([4, 9.6, WALL+2+2], 1);                     // USB-C slot through the top wall
+module pod_cuts(s) {
+    c = pod_c(s); sz = pod_sz(s); hx = hinge_x(s); hy = hinge_y(s);
+    for (p=pod_boss_pts(s)) translate([p[0], p[1], POD_Z0+sz[2]-9]) tap(10);
+    ztop = HK_Z0+HK_BOT+HK_TEMPLE+2*HK_GAP;
+    translate([hx, hy, ztop-1]) clr(HK_TOP+2);
+    translate([hx, hy, HK_Z0-1]) tap(HK_BOT+2);
+    translate([hx, hy, HK_Z0+HK_BOT-0.01]) cylinder(r=HK_R+CLR, h=HK_TEMPLE+2*HK_GAP+0.02);          // free swing for the temple knuckle
+    if (s>0) translate([c[0]+4, c[1]-sz[1]/2-1, 16]) cube([3.5, BACK_W+2, 3.5]);                    // speaker wires to the temple
+    if (s<0) {
+        translate([c[0]+2, c[1]+sz[1]/2-WALL-1, 24]) rotate([-90,0,0]) cylinder(d=7, h=WALL+2);      // camera window
+        translate([c[0]+2, c[1]+sz[1]/2-WALL-2.6, 24]) rotate([-90,0,0]) cylinder(d=10, h=2.7);      // barrel relief inside
+        translate([c[0]-9, c[1]+sz[1]/2-WALL-1, 30]) rotate([-90,0,0]) cylinder(d=3.2, h=WALL+2);    // status LED
+    }
 }
-module pod(s) {
+module front_solid() {
+    difference() { union() { rims(); bar(); nose_pads(); for (s=[-1,1]) union() { pod_shell(s); hinge_knuckles(s); } }
+                   hood_cavity(); for (s=[-1,1]) pod_cavity(s);
+                   translate([-66, -0.1, GROOVE_Z]) cube([HOOD_X0+66+1, GROOVE[1]+0.1, GROOVE[0]]); }   // wire groove
+    difference() { hood_shell(); hood_cavity(); }
+    hood_holders();
+    for (s=[-1,1]) pod_holders(s);
+}
+module front() difference() { front_solid(); hood_cuts(); for (s=[-1,1]) pod_cuts(s); }
+
+// ================================================================== LIDS ====
+module lid_generic(x0, y0, w, d, z, pts) difference() {
+    rboxc([x0+CLR/2, y0+CLR/2, z], [w-CLR, d-CLR, LID_T], 1);
+    for (p=pts) translate([p[0], p[1], z-1]) clr(LID_T+2);
+}
+module lid_hood() lid_generic(HOOD_X0+WALL, WALL, HOOD_X1-HOOD_X0-2*WALL, HOOD_Y1-2*WALL, HOOD_Z1, hood_boss_pts());
+module lid_pod(s) { c = pod_c(s); sz = pod_sz(s); zt = POD_Z0+sz[2];
     difference() {
-        union() { pod_shell(s); hinge_knuckles(s); }
-        pod_cavity(s);
-        if (s>0) pod_right_cuts(); else pod_left_cuts();
-        // hinge: M2.5x12 from the top — head recess + clearance in the top knuckle, tapped bottom knuckle
-        ztop = HK_Z0+HK_BOT+HK_TEMPLE+2*HK_GAP;
-        translate([s*HINGE[0], HINGE[1], ztop-1]) clr(HK_TOP+2);
-        translate([s*HINGE[0], HINGE[1], ztop+HK_TOP-2.6]) head(3);
-        translate([s*HINGE[0], HINGE[1], HK_Z0-1]) tap(HK_BOT+2);
+        lid_generic(c[0]-sz[0]/2+WALL, c[1]-sz[1]/2+BACK_W, sz[0]-2*WALL, sz[1]-WALL-BACK_W, zt, pod_boss_pts(s));
+        if (s>0) translate([c[0], c[1]-6, zt-1]) cylinder(d=4.2, h=LID_T+2);                              // button actuator hole
+        if (s<0) translate([c[0]-3.25, c[1]+sz[1]/2-WALL-XIAO[2]-1+ (XIAO[2]-4.5)/2, zt-1]) cube([10.5, 4.5, LID_T+2]); // USB-C (verify on the board)
     }
-    difference() { lid_bosses(s); pod_cavity_keep(s); }
-}
-module pod_cavity_keep(s) { } // bosses live inside the cavity; nothing to subtract
-module lid(s) {
-    ox = s>0 ? POD_CX+POD[0]/2-LID_T : -(POD_CX+POD[0]/2);
-    difference() {
-        translate([ox, POD_CY-POD[1]/2+WALL+CLR/2, POD_Z0+WALL+CLR/2]) cube([LID_T, POD[1]-2*WALL-CLR, POD[2]-2*WALL-CLR]);
-        for (y=[POD_CY-POD[1]/2+WALL+3, POD_CY+POD[1]/2-WALL-3]) for (z=[POD_Z0+WALL+3, POD_Z0+POD[2]-WALL-3])
-            translate([ox-1, y, z]) rotate([0,90,0]) { clr(LID_T+2); translate([0,0,LID_T+0.2]) head(3); }
-    }
+    if (s>0) translate([c[0]-4.4, c[1]-6-4.4, zt-BTN[2]-1.2]) difference() { cube([8.8, 8.8, BTN[2]+1.2]); translate([1.2, 1.2, -1]) cube([6.4, 6.4, BTN[2]+3]); }  // button cage
 }
 
 // =============================================================== TEMPLES ====
+function bez(p0,p1,p2,p3,t) = pow(1-t,3)*p0 + 3*pow(1-t,2)*t*p1 + 3*(1-t)*t*t*p2 + pow(t,3)*p3;
 module temple(s) {
-    hx = s*HINGE[0]; hy = HINGE[1];
+    hx = hinge_x(s); hy = hinge_y(s); zk0 = HK_Z0+HK_BOT+HK_GAP;
     difference() {
         union() {
-            translate([hx, hy, 0]) rotate([0,0,-s*TEMPLE_SPLAY]) translate([-hx, -hy, 0]) temple_body(s);
-            // knuckle on the axis, with 0.5 mm chamfers top and bottom so it slides between the pod knuckles
-            translate([hx, hy, HK_Z0+HK_BOT+HK_GAP]) cylinder(r1=4.0, r2=4.5, h=0.5);
-            translate([hx, hy, HK_Z0+HK_BOT+HK_GAP+0.5]) cylinder(r=4.5, h=HK_TEMPLE-1);
-            translate([hx, hy, HK_Z0+HK_BOT+HK_GAP+HK_TEMPLE-0.5]) cylinder(r1=4.5, r2=4.0, h=0.5);
+            translate([hx, hy, 0]) rotate([0,0,s*TEMPLE_SPLAY]) translate([-hx, -hy, 0]) temple_body(s, zk0);
+            translate([hx, hy, zk0]) cylinder(r1=HK_R-0.5, r2=HK_R, h=0.5);
+            translate([hx, hy, zk0+0.5]) cylinder(r=HK_R, h=HK_TEMPLE-1);
+            translate([hx, hy, zk0+HK_TEMPLE-0.5]) cylinder(r1=HK_R, r2=HK_R-0.5, h=0.5);
         }
-        // the bore is cut LAST, through everything (v0.4 bug: the root hull was unioned after the cut and filled it)
-        translate([hx, hy, HK_Z0-1]) clr(HK_BOT+HK_TEMPLE+2*HK_GAP+HK_TOP+3);
+        translate([hx, hy, HK_Z0-1]) clr(HK_BOT+HK_TEMPLE+2*HK_GAP+HK_TOP+3);   // bore cut LAST through everything
     }
 }
-function bez(p0,p1,p2,p3,t) = pow(1-t,3)*p0 + 3*pow(1-t,2)*t*p1 + 3*(1-t)*t*t*p2 + pow(t,3)*p3;
-module temple_body(s) {
-    hx = s*HINGE[0]; hy = HINGE[1];
-    zk = HK_Z0+HK_BOT+HK_GAP+HK_TEMPLE/2;    // knuckle centre height
-    // centre-line of the arm: straight back, then one smooth bend down over the ear (bezier)
+module temple_body(s, zk0) {
+    hx = hinge_x(s); hy = hinge_y(s); zk = zk0 + HK_TEMPLE/2;
     p0 = [0, -6, 0]; p1 = [0, -TEMPLE_L-8, 0]; p2 = [0, -TEMPLE_L-24, -4]; p3 = [0, -TEMPLE_L-36, -EAR_DROP-6];
     N = 28;
     difference() {
         union() {
-            // root: from the knuckle into the arm
-            hull() {
-                translate([hx, hy, HK_Z0+HK_BOT+HK_GAP]) cylinder(r=4.5, h=HK_TEMPLE);
-                translate([hx, hy-8, zk]) scale([TEMPLE_W/2, 4, TEMPLE_H/2]) sphere(r=1, $fn=24);
-            }
-            // arm: chain of hulls along the curve, cross-section tapering 12x14 -> 7x8
-            for (i=[0:N-1]) hull() for (t=[i/N, (i+1)/N]) {
-                q = bez(p0,p1,p2,p3,t); k = 1 - 0.42*t;
-                translate([hx, hy+q[1], zk+q[2]]) scale([TEMPLE_W/2*k, 4, TEMPLE_H/2*k]) sphere(r=1, $fn=24);
-            }
-            if (s>0) translate([hx-TEMPLE_W/2, hy-TEMPLE_L+16, zk-1]) rotate([0,90,0]) cylinder(d=SPK_D+5, h=7); // speaker boss
+            hull() { translate([hx, hy, zk0]) cylinder(r=HK_R, h=HK_TEMPLE); translate([hx, hy-8, zk]) scale([TEMPLE_W/2, 4, TEMPLE_H/2]) sphere(r=1, $fn=24); }
+            for (i=[0:N-1]) hull() for (t=[i/N, (i+1)/N]) { q = bez(p0,p1,p2,p3,t); k = 1 - 0.42*t; translate([hx, hy+q[1], zk+q[2]]) scale([TEMPLE_W/2*k, 4, TEMPLE_H/2*k]) sphere(r=1, $fn=24); }
+            if (s>0) translate([hx-TEMPLE_W/2-1, hy-TEMPLE_L+16, zk-1]) rotate([0,90,0]) cylinder(d=SPK_D+4, h=7.5);   // speaker boss, head side
         }
-        translate([hx-1.4, hy-TEMPLE_L+8, zk-1.4]) cube([2.8, TEMPLE_L-12, 2.8]);          // wire channel
-        if (s>0) {
-            cy = hy-TEMPLE_L+16;
-            translate([hx-TEMPLE_W/2-1, cy, zk-1]) rotate([0,90,0]) cylinder(d=SPK_D+2*CLR, h=SPK_T+CLR+1);
-            for (a=[0:60:300]) translate([hx-TEMPLE_W/2-1, cy+6*cos(a), zk-1+6*sin(a)]) rotate([0,90,0]) cylinder(d=2, h=10);
-            translate([hx-TEMPLE_W/2-1, cy, zk-1]) rotate([0,90,0]) cylinder(d=2, h=10);
+        translate([hx-1.5, hy-TEMPLE_L+10, zk-1.5]) cube([3, TEMPLE_L-10+4, 3]);   // wire channel, exits on the root face
+        if (s>0) { cy = hy-TEMPLE_L+16;
+            translate([hx-TEMPLE_W/2-0.2, cy, zk-1]) rotate([0,90,0]) cylinder(d=SPK_D+2*CLR, h=SPK_T+CLR+0.8);   // pocket, 0.8 mm grille face toward the head
+            for (a=[0:45:315]) translate([hx-TEMPLE_W/2-2, cy+6*cos(a), zk-1+6*sin(a)]) rotate([0,90,0]) cylinder(d=1.6, h=4);
+            translate([hx-TEMPLE_W/2-2, cy, zk-1]) rotate([0,90,0]) cylinder(d=1.6, h=4);
         }
     }
 }
 
 // ================================================================ GHOSTS ====
-module ghosts() { rotate([0,0,-WRAP]) ghosts_r(); rotate([0,0,WRAP]) ghosts_l(); }
-module ghosts_l() {
-    color("orange", 0.7) translate([-POD_CX-POD[0]/2+WALL+0.4, POD_CY-BAT[0]/2, 8]) cube([BAT[2], BAT[0], BAT[1]]);
-    color("green", 0.6)  translate([-POD_CX-POD[0]/2+WALL+BAT[2]+2, POD_CY+POD[1]/2-WALL-XIAO[1]-1, 8]) cube([XIAO[2], XIAO[1], XIAO[0]]);
-}
-module ghosts_r() {
-    color("blue", 0.7)   translate([POD_CX+OLED_OFF-OLED_PCB[0]/2, OLED_Y-OLED_PCB[2], BEAM_Z-OLED_PCB[1]/2]) cube([OLED_PCB[0], OLED_PCB[2], OLED_PCB[1]]);
-    color("silver", 0.9) translate(MIR_C) rotate([0,0,-45]) cube([MIR[0], MIR[2], MIR[1]], center=true);
-    color("silver", 0.9) translate(MIR2_C) rotate([0,45,0]) cube([MIR[2], MIR[0], MIR[1]], center=true);
-    color("cyan", 0.5)   translate([LENS_X, COMB[1], BEAM_Z]) rotate([0,90,0]) cylinder(d=LENS_D, h=LENS_T, center=true);
+module ghosts() {
+    color("blue", 0.7)   translate([OLED_X, AX_Y-OLED_PCB[0]/2, BEAM_Z-OLED_PCB[1]/2]) cube([OLED_PCB[2], OLED_PCB[0], OLED_PCB[1]]);
+    color("silver", 0.9) translate(MIR_C) rotate([0,-45,0]) cube([MIR[2], MIR[0], MIR[1]], center=true);
+    color("cyan", 0.5)   translate([EX, AX_Y, LENS_Z]) cylinder(d=LENS_D, h=LENS_T, center=true);
     color("cyan", 0.4)   translate(COMB) rotate([-45,0,0]) cube([BS[0], BS[2], BS[1]], center=true);
-    color("red", 0.7)    translate([POD_CX-AMP[0]/2, POD_CY-POD[1]/2+WALL+0.4, 2]) cube([AMP[0], AMP[2], AMP[1]]); // amp at the back wall (right pod)
-    color("yellow", 0.3) translate([COMB[0]-BEAM_H/2, COMB[1]-BEAM_W/2*0.99, COMB[2]]) cube([BEAM_H, BEAM_W*0.99, BEAM_Z-COMB[2]]);   // vertical run
-    color("gray", 0.7)   translate([HINGE[0]-TEMPLE_W/2, HINGE[1]-TEMPLE_L+16, TEMPLE_Z]) rotate([0,90,0]) cylinder(d=SPK_D, h=SPK_T);
-    color("yellow", 0.3) translate([POD_CX-5.45, OLED_Y, BEAM_Z-10.85]) cube([10.9, MIR_C[1]-OLED_Y, 21.7]);           // pod: forward
-    color("yellow", 0.3) translate([COMB[0], COMB[1]-5.45, BEAM_Z-10.85]) cube([MIR_C[0]-COMB[0], 10.9, 21.7]);        // hood: toward the nose
-    color("yellow", 0.3) translate([COMB[0]-10.85, -VD, -5.45]) cube([21.7, COMB[1]+VD, 10.9]);                        // splitter -> eye
+    color("yellow", 0.3) translate([EX, AX_Y-5.45, BEAM_Z-10.85]) cube([OLED_X-EX, 10.9, 21.7]);
+    color("yellow", 0.3) translate([EX-10.85, AX_Y-5.45, 0]) cube([21.7, 10.9, BEAM_Z]);
+    color("yellow", 0.3) translate([EX-10.85, -VD, -5.45]) cube([21.7, AX_Y+VD, 10.9]);
+    c = pod_c(1);
+    color("red", 0.7)  translate([c[0]+POD_R[0]/2-WALL-AMP[2]-CLR, c[1]-AMP[0]/2, POD_Z0+WALL+0.4]) cube([AMP[2], AMP[0], AMP[1]]);
+    color("gray", 0.7) translate([c[0]-3, c[1]-6-3, POD_Z0+POD_R[2]-BTN[2]-1.2]) cube([6, 6, BTN[2]]);
+    l = pod_c(-1);
+    color("orange", 0.7) translate([l[0]-POD_L[0]/2+WALL+0.4, l[1]-BAT[0]/2, POD_Z0+WALL]) cube([BAT[2], BAT[0], BAT[1]]);
+    color("green", 0.6)  translate([l[0]+2-XIAO[0]/2, l[1]+POD_L[1]/2-WALL-XIAO[2]-0.4, POD_Z0+WALL+4]) cube([XIAO[0], XIAO[2], XIAO[1]]);
+    hx = hinge_x(1); hy = hinge_y(1);
+    translate([hx, hy, 0]) rotate([0,0,TEMPLE_SPLAY]) translate([-hx, -hy, 0])
+        color("gray", 0.7) translate([hx-TEMPLE_W/2, hy-TEMPLE_L+16, HK_Z0+HK_BOT+HK_GAP+HK_TEMPLE/2-1]) rotate([0,90,0]) cylinder(d=SPK_D, h=SPK_T);
 }
-
-// ================================================================== PEGS ====
-// Printed substitutes for the M2.5 screws, for the fit test only (print flat).
-module peg(d, l) { rotate([0,90,0]) union() { cylinder(d=d, h=l); translate([0,0,-1.8]) cylinder(d=5, h=1.8); } }
-module pegs() {
-    for (i=[0:1]) translate([0, i*8, 0]) peg(2.7, POD[2]+1);     // 2x hinge pins (through the knuckles, 43 mm)
-    for (i=[0:3]) translate([0, 16+i*8, 0]) peg(2.35, 10);       // 4x pod-to-front pegs (press-fit into the 2.2 mm holes)
-}
-
-// ================================================================== HEAD ====
-module head_ghost() { // scan frame: origin between the pupils on the cornea plane -> shift back by VD
-    %translate([0, -VD, 0]) import(head_file);
-}
-head_file = "../reference/head2-mm.stl";   // full head with ears (head-mm.stl = face-only, denser nose)
+module head_ghost() %translate([0, -VD, 0]) import(head_file);
 
 // ================================================================ OUTPUT ====
 module assembly() {
     color("dimgray") front();
-    color("darkslategray") { lid_wrapped(1); lid_wrapped(-1); }
-    color("dimgray") { temple_wrapped(1); temple_wrapped(-1); }
+    color("darkslategray") { lid_hood(); lid_pod(1); lid_pod(-1); }
+    color("dimgray") { temple(1); temple(-1); }
     if (show_parts) ghosts();
     if (show_head) head_ghost();
 }
 if (part == "front") front();
-else if (part == "lid_r") lid(1);
-else if (part == "lid_l") lid(-1);
+else if (part == "lid_hood") lid_hood();
+else if (part == "lid_r") lid_pod(1);
+else if (part == "lid_l") lid_pod(-1);
 else if (part == "temple_r") temple(1);
 else if (part == "temple_l") temple(-1);
-else if (part == "pegs") pegs();
 else if (part == "fit") { %front(); ghosts(); }
-else if (part == "layout") { // right pod with the outer wall removed + ghost parts, seen from the lid side
-    color("dimgray") difference() { pod(1); translate([POD_CX+POD[0]/2-WALL-3, -100, -50]) cube([50, 200, 100]); }
-    color("dimgray") intersection() { frame_only(); translate([POD_CX-POD[0]/2-40, -50, -60]) cube([40, 120, 120]); }
-    ghosts_r();
-}
-else if (part == "exploded") {
-    color("dimgray") front();
-    for (s=[-1,1]) color("dimgray") translate([s*10, -30, 0]) temple_wrapped(s);
-    color("orange") for (s=[-1,1]) rotate([0,0,-s*WRAP]) translate([s*HINGE[0], HINGE[1]-30, HK_Z0+HK_BOT+HK_TEMPLE+HK_TOP+14]) rotate([0,90,0]) peg(2.5, 12);
-}
+else if (part == "layout") { %front(); ghosts(); }
+else if (part == "exploded") { color("dimgray") front(); color("darkslategray") translate([0,0,18]) { lid_hood(); lid_pod(1); lid_pod(-1); } for (s=[-1,1]) color("dimgray") translate([s*12, -28, 0]) temple(s); }
 else assembly();

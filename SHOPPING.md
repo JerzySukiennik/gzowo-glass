@@ -7,13 +7,15 @@ Ali ~120 zł, bateria z domu. Budżet 250 zł z dużym zapasem. Zamawia Jurek.
 |---|---|---|---|---|
 | 1 | **Seeed XIAO ESP32-S3 Sense** (mózg: kamera OV2640, mikrofon, 8 MB PSRAM, WiFi/BLE, ładowarka LiPo) | https://pl.aliexpress.com/item/1005006988111963.html | 65,59 zł | „1pc" (jeden wariant, kamera OV3660), dostawa 17–24 wrz |
 | 2 | **OLED 0,96" 128×64 I2C SSD1306** (wyświetlacz do combinera) | https://pl.aliexpress.com/item/1005009170035050.html | 8,40 zł | kolor **biały** (Jurek, 2026-09-12), 4-pin IIC, 1 szt. |
-| 3 | **Beam splitter 30×30 mm** (półprzezroczyste lustro, combiner przed okiem) | https://pl.aliexpress.com/item/1005012046261289.html | 36,18 zł | 30×30 mm, 50/50 |
+| 3 | **Beam splitter 25×25 mm** (półprzezroczyste lustro, combiner przed okiem) | https://pl.aliexpress.com/item/1005012046261289.html (wybierz wariant 25×25, jeśli jest; inaczej szukaj „beam splitter 25x25 50/50") | ~30 zł | **25×25 mm**, 50/50, grubość ≤ 1,5 mm (v0.6: 30 mm kolidowało z soczewką; wiązka na szybce ma 17×10) |
 | 4 | **Soczewka Ø30 mm, f = 50 mm** (dwuwypukła, szkło) | https://pl.aliexpress.com/item/1005004213353520.html | ~3 zł | wariant **D30mm FL50mm** (25 mm nie ma w tym listingu; 30 jest OK) |
 | 5 | **Wzmacniacz I2S MAX98357** (dźwięk z ESP32 do głośnika) | https://pl.aliexpress.com/item/1005009356741606.html | 5,51 zł | 1 szt. |
 | 6 | **Głośnik 20 mm, 8 Ω, 1 W, ultracienki 3,6 mm** (2 szt. w paczce, zapas) | https://pl.aliexpress.com/item/1005009193787692.html | 3,84 zł | 20×3,6 mm |
 | 7 | **LiPo 3,7 V, 300–1000 mAh — Z DOMU** (Ali nie wysyła ogniw do PL, Botland = płatna dostawa). Każde ogniwo 1S z drona/powerbanka/słuchawek; ważne: 1 cela 3,7 V, nie 7,4 V | — | 0 zł | jak nic nie znajdziesz: Botland Akyga 620 mAh 40×20×8 mm, 20,90 zł (AKU-15606) |
 | 9 | **Mikroprzyciski 6×6 mm tact, 20 szt.** (przycisk na podzie) | https://pl.aliexpress.com/item/1005005845072975.html | 3,73 zł | 6×6×5 mm lub 6×6×7 mm |
-| 10 | **Lusterka powierzchniowe (first surface mirror) 30×30 mm, 2 szt.** — jedno w podzie (składa wiązkę OLED→soczewka), drugie w daszku (zawraca wiązkę w dół na szybkę przed okiem) | szukaj na Ali: „first surface mirror 30x30" (~5–8 zł/szt.) | ~14 zł | 30×30, ≤ 2 mm grube, powierzchniowe (nie zwykłe lusterko łazienkowe — to daje podwójne odbicie) |
+| 10 | **Lusterko powierzchniowe (first surface mirror) 30×30 mm, 1 szt.** — w daszku, zawraca wiązkę z OLED-a w dół na szybkę (v0.6: jedno lusterko zamiast dwóch) | szukaj na Ali: „first surface mirror 30x30" (~5–8 zł) | ~7 zł | 30×30, ≤ 2 mm, **powierzchniowe** (zwykłe lusterko daje podwójne odbicie; test po dostawie: latarka pod kątem, ma być jedno odbicie) |
+| 11 | **Złączki JST-PH 2-pin** (bateria odłączalna) | Ali: „JST PH 2.0 2pin connector" | ~4 zł | 10 par |
+| 12 | **Termokurczka, zestaw** (14 lutów w ciasnym podzie) | Ali: „heat shrink tube kit" | ~5 zł | 1–4 mm |
 | | **Razem** | | **~137 zł** (samo Ali) | |
 
 ## Zanim klikniesz „kup"

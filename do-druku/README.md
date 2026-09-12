@@ -1,40 +1,29 @@
-# do-druku — przymiarka v0.4 (bez elektroniki)
+# do-druku — v0.6 (po przeglądzie gauntlet, przed drukiem)
 
-Trzy części + 2 śrubki M2,5×12. Pody są zrośnięte z frontem (v0.2 miało osobne pody, które nie trzymały).
-Folder jest kopią `cad/stl/` — źródłem jest `cad/glass.scad`.
+Sześć części + 14 × M2,5×12 (2 zawiasy + 4 pokrywka daszka + 4 + 4 pokrywki podów).
+Folder jest kopią `cad/stl/`, źródłem jest `cad/glass.scad`. Co się zmieniło i dlaczego: `GAUNTLET-REPORT.md`.
 
 | Plik | Szt. | Orientacja na stole | Podpory |
 |---|---|---|---|
-| `front.stl` | 1 | **tyłem do stołu** (płaska strona, ta od twarzy, w dół) | auto (tree): pod tylnymi połówkami podów i pod noskówkami |
-| `temple_r.stl`, `temple_l.stl` | 1+1 | **płasko na boku** (szeroką ścianą do stołu) | trochę pod zagięciem, auto OK |
+| `front.stl` | 1 | **DO GÓRY NOGAMI**: górne krawędzie daszka i podów na stole (otwarte komory w dół) | brak w komorach; tree pod noskówkami i pod belką między podami |
+| `lid_hood.stl`, `lid_r.stl`, `lid_l.stl` | 1+1+1 | płasko | brak |
+| `temple_r.stl`, `temple_l.stl` | 1+1 | na boku, występ głośnika do góry | brim, bez podpór |
 
-Ustawienia: PLA, 0,2 mm, **3 ścianki**, wypełnienie 20 %. Skala 1:1 (model dla PD = 62 mm, roboczo).
-Front ma 200 mm szerokości — na X1C wchodzi po przekątnej lub wzdłuż X.
+PLA, 0,2 mm, 3 ścianki, 20 %. Skala 1:1 (PD = 62 roboczo). Front 200 × 68 × 42 mm.
 
-## Montaż
+## Co jest inaczej niż w v0.3/v0.4
 
-1. Zausznik: jego kostka wchodzi między dwie kostki z tyłu poda (dolna jest gwintowana przez śrubę).
-2. **M2,5×12 z góry** przez górną kostkę poda, kostkę zausznika, wkręcasz w dolną kostkę. Otwór 2,4 mm — śruba sama nacina gwint w PLA. Zausznik ma się obracać; jak śruba trze, poluzuj ćwierć obrotu.
-3. Pokrywek podów nie drukujemy do przymiarki (są w `cad/stl/lid_*.stl`, 4 × M2,5 każda, na potem).
+- Daszek nad prawym okiem jest wyższy (34 mm) i **otwarty od góry**: tam siedzi OLED (na szynach, przesuwny 6 mm = ostrość), jedno lusterko 30×30 (między żebrami pod 45°) i soczewka (w kieszeni w podłodze, nad szybką). Szybka 25×25 wchodzi od dołu w skośną szczelinę w podłodze daszka.
+- Pody otwarte od góry, pokrywki na 4 śrubki. Prawy: wzmacniacz na żebrach + przycisk w pokrywce. Lewy: bateria przy ściance + XIAO za przednią ścianką (okno kamery), USB-C przez pokrywkę.
+- Zawias: śruba z góry, 4 mm gwintu w dolnej kostce, łeb wystaje 2,5 mm. Zauszniki rozchylone na zewnątrz.
+- Tył płaski, rowek na kable 5×5 na tylnej ścianie belki.
 
-## Zmiany od v0.3 (HUD na osi wzroku)
+## Przymiarka (bez elektroniki)
 
-- wiązka biegnie tunelem w daszku i **drugie lusterko** w daszku zawraca ją w dół
-- beam splitter **pochylony 45° przed prawym okiem**, dokładnie na osi źrenicy: patrzysz prosto, HUD nałożony na świat
-- daszek 26 mm wysoki i 33 mm głęboki (mieści lusterko 30×30 pod kątem), pody głębsze o 6 mm
-- OLED stoi w prawym podzie pionowo (obraz obraca się dwa razy), XIAO z kamerą i USB-C przeniesione do lewego poda
+Drukuj front + zauszniki (pokrywki opcjonalnie). Sprawdź: mostek nie dotyka nosa (VD 21), noskówki leżą płasko na bokach nosa, zauszniki nie uciskają przed uszami, daszek nie zasłania więcej niż górny skrawek widzenia prawego oka, szczelina szybki ≥ 2 cm od rzęs. Zgłoś liczby, wszystko jest parametrem.
 
-## Zmiany od v0.2 (po pierwszej przymiarce Jurka)
+## Do potwierdzenia po dostawie części
 
-- pody zrośnięte z frontem: zero złącza, zero kołków od spodu, zero dziur w narożnikach
-- tylko M2,5×12; otwory 2,4 (gwint) / 2,9 (przelot)
-- front wygięty 6° (każda połowa przy mostku), większe otwory na szkła
-- zauszniki: jedna gładka krzywa ze zwężeniem
-- nic nie wchodzi od spodu
-
-## Co sprawdzić po założeniu
-
-- Czy nadal widać obręcze w polu widzenia → ewentualnie `WRAP` 6 → 9 albo `VD` 18 → 16.
-- Szczelina pod daszkiem przed prawym okiem (na beam splitter) — czy nic nie dotyka rzęs (ma być ≥ 8 mm od oka).
-- Noskówki: symetria, czy oprawka opada.
-- Zauszniki: ucisk przed uszami (`TEMPLE_SPLAY`), miejsce zgięcia (`TEMPLE_L`), czy hak trzyma za uchem.
+- Pozycja obiektywu kamery i USB-C na realnym XIAO (okno i wycięcie w pokrywce lewego poda).
+- Offset aktywnego pola OLED względem środka płytki (`OLED_OFF`).
+- Grubość szybki i lusterka (szczeliny liczone na 1,1 i 1,6 mm).
