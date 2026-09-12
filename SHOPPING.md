@@ -13,8 +13,8 @@ Ali ~120 zł, bateria z domu. Budżet 250 zł z dużym zapasem. Zamawia Jurek.
 | 6 | **Głośnik 20 mm, 8 Ω, 1 W, ultracienki 3,6 mm** (2 szt. w paczce, zapas) | https://pl.aliexpress.com/item/1005009193787692.html | 3,84 zł | 20×3,6 mm |
 | 7 | **LiPo 3,7 V, 300–1000 mAh — Z DOMU** (Ali nie wysyła ogniw do PL, Botland = płatna dostawa). Każde ogniwo 1S z drona/powerbanka/słuchawek; ważne: 1 cela 3,7 V, nie 7,4 V | — | 0 zł | jak nic nie znajdziesz: Botland Akyga 620 mAh 40×20×8 mm, 20,90 zł (AKU-15606) |
 | 9 | **Mikroprzyciski 6×6 mm tact, 20 szt.** (przycisk na podzie) | https://pl.aliexpress.com/item/1005005845072975.html | 3,73 zł | 6×6×5 mm lub 6×6×7 mm |
-| 10 | **Lusterko powierzchniowe (first surface mirror) ~30×15 mm** — składa wiązkę OLED→soczewka w podzie; bez niego pod musiałby wystawać 24 mm przed oprawkę | szukaj na Ali: „first surface mirror 30x20" lub „reflective mirror optical 25x25" (~5–8 zł); model przyjmuje 30×15×1,6, większe przytniemy | ~6 zł | dowolne 25–30 mm szerokie, ≤ 2 mm grube |
-| | **Razem** | | **~129 zł** (samo Ali) | |
+| 10 | **Lusterka powierzchniowe (first surface mirror) 30×30 mm, 2 szt.** — jedno w podzie (składa wiązkę OLED→soczewka), drugie w daszku (zawraca wiązkę w dół na szybkę przed okiem) | szukaj na Ali: „first surface mirror 30x30" (~5–8 zł/szt.) | ~14 zł | 30×30, ≤ 2 mm grube, powierzchniowe (nie zwykłe lusterko łazienkowe — to daje podwójne odbicie) |
+| | **Razem** | | **~137 zł** (samo Ali) | |
 
 ## Zanim klikniesz „kup"
 

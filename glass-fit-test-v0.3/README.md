@@ -1,4 +1,4 @@
-# do-druku — przymiarka v0.4 (bez elektroniki)
+# do-druku — przymiarka v0.3 (bez elektroniki)
 
 Trzy części + 2 śrubki M2,5×12. Pody są zrośnięte z frontem (v0.2 miało osobne pody, które nie trzymały).
 Folder jest kopią `cad/stl/` — źródłem jest `cad/glass.scad`.
@@ -17,13 +17,6 @@ Front ma 200 mm szerokości — na X1C wchodzi po przekątnej lub wzdłuż X.
 2. **M2,5×12 z góry** przez górną kostkę poda, kostkę zausznika, wkręcasz w dolną kostkę. Otwór 2,4 mm — śruba sama nacina gwint w PLA. Zausznik ma się obracać; jak śruba trze, poluzuj ćwierć obrotu.
 3. Pokrywek podów nie drukujemy do przymiarki (są w `cad/stl/lid_*.stl`, 4 × M2,5 każda, na potem).
 
-## Zmiany od v0.3 (HUD na osi wzroku)
-
-- wiązka biegnie tunelem w daszku i **drugie lusterko** w daszku zawraca ją w dół
-- beam splitter **pochylony 45° przed prawym okiem**, dokładnie na osi źrenicy: patrzysz prosto, HUD nałożony na świat
-- daszek 26 mm wysoki i 33 mm głęboki (mieści lusterko 30×30 pod kątem), pody głębsze o 6 mm
-- OLED stoi w prawym podzie pionowo (obraz obraca się dwa razy), XIAO z kamerą i USB-C przeniesione do lewego poda
-
 ## Zmiany od v0.2 (po pierwszej przymiarce Jurka)
 
 - pody zrośnięte z frontem: zero złącza, zero kołków od spodu, zero dziur w narożnikach
@@ -35,6 +28,5 @@ Front ma 200 mm szerokości — na X1C wchodzi po przekątnej lub wzdłuż X.
 ## Co sprawdzić po założeniu
 
 - Czy nadal widać obręcze w polu widzenia → ewentualnie `WRAP` 6 → 9 albo `VD` 18 → 16.
-- Szczelina pod daszkiem przed prawym okiem (na beam splitter) — czy nic nie dotyka rzęs (ma być ≥ 8 mm od oka).
 - Noskówki: symetria, czy oprawka opada.
 - Zauszniki: ucisk przed uszami (`TEMPLE_SPLAY`), miejsce zgięcia (`TEMPLE_L`), czy hak trzyma za uchem.

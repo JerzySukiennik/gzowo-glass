@@ -17,16 +17,10 @@
 //          in the right temple at the ear.
 //   LIDS   outer plates of the pods, 4x M2.5 each.
 //
-// Optical path (v0.4, HUD on the line of sight):
-//   OLED (right pod, mounted PORTRAIT, screen facing +Y) -> mirror 1 (45° about Z)
-//   -> beam along -X through the lens f=50 (pod inner wall) and the hood
-//   -> mirror 2 in the hood above the eye (45° about Y) -> beam straight DOWN
-//   -> beam splitter tilted 45° about X in front of the right eye, centred on
-//   the pupil axis -> eye. OLED->lens = 42 mm => virtual image ~26 cm away.
-//   Two 90° folds rotate the image twice, hence the portrait OLED.
-// Electronics: LEFT pod = XIAO ESP32-S3 Sense (camera through the front wall,
-//   USB-C through the top) + battery; RIGHT pod = OLED, mirror 1, lens, MAX98357.
-//   Battery/I2C/I2S wires run in the groove along the back of the brow bar.
+// Optical path: OLED (y=OLED_Y, screen +Y) -> mirror (MIR_C) -> along -X
+// inside the hood -> lens f=50 (LENS_X, axis X) -> beam splitter (COMB, 45°
+// about Z) -> eye. OLED->lens = 42 mm => virtual image ~26 cm away; the eye
+// looks up ~25° into the hood (see ../RESEARCH.md).
 // ---------------------------------------------------------------------------
 
 part = "assembly";   // front | pod_r | pod_l | lid_r | lid_l | temple_r | temple_l | assembly | fit
@@ -50,7 +44,7 @@ OLED_PCB = [27.3, 27.3, 4.3];   // 0.96" I2C module; active area sits ~4 mm belo
 AMP      = [19.4, 17.8, 3.2];   // MAX98357 breakout
 SPK_D    = 20;  SPK_T = 3.6;    // speaker
 BS       = [30, 30, 1.6];       // beam splitter plate (thickness assumed; slot = 2.2)
-MIR      = [30, 30, 1.6];       // fold mirrors (first-surface), 2 pcs: pod (about Z) and hood (about Y)
+MIR      = [30, 15, 1.6];       // fold mirror (first-surface), width x height
 LENS_D   = 30;  LENS_T = 6.5;   // biconvex f=50, centre thickness ~6
 BTN      = [6, 6, 5];           // tact switch
 BAT      = [40, 20, 8];         // battery pocket (y, z, x) -> edit when the cell is known
@@ -61,21 +55,18 @@ CLR      = 0.4;  WALL = 1.6;
 // ---------------------------------------------------------------- layout ---
 FRONT_T  = 6;                  // front plate depth (y 0..6)
 BAR_Z0   = 6;   BAR_Z1 = 22;   // brow bar z-range (16 tall)
-BEAM_Z   = 18;                 // optical axis height inside the hood (beam is 22 tall there)
-BEAM_H   = 22.4;               // beam extent along z in the hood (OLED long side 21.7 + margin)
-BEAM_W   = 11.4;               // beam extent along y in the hood (OLED short side 10.9 + margin)
-COMB     = [EX, 16, 0];        // beam splitter centre: on the pupil axis, 16 mm in front of the frame back
+BEAM_Z   = 12.5;               // optical axis height inside the bar
+BEAM_H   = 11.4;               // beam channel height (OLED image 10.9 + margin)
+BEAM_W   = 22;                 // beam channel depth in y (OLED image 21.7)
+COMB     = [EX, 13, BEAM_Z-6]; // beam splitter centre; beam hits 9 mm below its top edge
 HOOD_X0  = 15;  HOOD_X1 = 66;  // hood spans the right lens to the pod
-HOOD_Z0  = 5;   HOOD_Z1 = 31;  // hood is taller than the bar (beam 22 + walls)
-HOOD_D   = 33;                 // hood depth: the 30x30 hood mirror at 45° spans y 1..31
-MIR2_C   = [EX, COMB[1], BEAM_Z];    // hood mirror centre: turns the beam down onto the splitter
-OLED_OFF = 2;                        // OLED board centre offset in x (active area is off-centre on the PCB)
+HOOD_D   = COMB[1] + BEAM_W/2 + 2;   // hood depth (y 0..26)
 LENS_X   = 70;                 // lens centre (axis X), seat just inside the right pod's inner wall
-POD      = [32, 64, 42];       // pod size x,y,z (z from POD_Z0); deep enough for the Ø30 lens at y=COMB[1]
+POD      = [32, 58, 42];       // pod size x,y,z (z from POD_Z0)
 POD_Z0   = -4;                 // pod bottom (lens Ø30 needs room below the beam axis)
 POD_CX   = 82;                 // pod centre x (inner wall at 66, outer at 98)
-POD_CY   = 2;                  // pod y-range -30..34
-MIR_C    = [POD_CX, COMB[1], BEAM_Z];             // pod mirror centre
+POD_CY   = -1;                 // pod y-range -30..28
+MIR_C    = [POD_CX, COMB[1], BEAM_Z];             // fold mirror centre
 OLED_Y   = MIR_C[1] - (42 - (MIR_C[0] - LENS_X)); // screen plane y: OLED->mirror->lens = 42
 HINGE    = [POD_CX, POD_CY - POD[1]/2 - 4];       // temple hinge axis (x, y), behind the pod
 // hinge stack sized for one M2.5x12 from the top: pod top knuckle 4, temple knuckle 6.5, pod bottom knuckle 5 (tapped)
@@ -103,7 +94,7 @@ module front_solid() {
     for (m=[false,true]) plate(FRONT_T) offset(r=5) lens2d(m);                 // rims
     // brow bar and hood: rounded on the visible edges, flat at the back (y=0) and at the plug ends
     intersection() { rboxc([-HOOD_X1-4, -6, BAR_Z0], [2*HOOD_X1+8, FRONT_T+6, BAR_Z1-BAR_Z0], 2.5); translate([-HOOD_X1, 0, BAR_Z0-1]) cube([2*HOOD_X1, FRONT_T, BAR_Z1-BAR_Z0+2]); }
-    intersection() { rboxc([HOOD_X0, -6, HOOD_Z0], [HOOD_X1-HOOD_X0+6, HOOD_D+6, HOOD_Z1-HOOD_Z0], 3); translate([HOOD_X0, 0, HOOD_Z0-1]) cube([HOOD_X1-HOOD_X0, HOOD_D, HOOD_Z1-HOOD_Z0+2]); }
+    intersection() { rboxc([HOOD_X0, -6, BAR_Z0], [HOOD_X1-HOOD_X0+6, HOOD_D+6, BAR_Z1-BAR_Z0], 3); translate([HOOD_X0, 0, BAR_Z0-1]) cube([HOOD_X1-HOOD_X0, HOOD_D, BAR_Z1-BAR_Z0+2]); }
     // nose pads: angled saddle faces on the nose flanks (z -16..-4), protruding 4 mm behind the frame back
     for (s=[-1,1]) translate([s*PAD_X, -1, -10]) rotate([0,0,-s*PAD_ANG]) rbox([3.2, 7, 13], 1.2);
     for (s=[-1,1]) hull() { translate([s*PAD_X, -1, -10]) rotate([0,0,-s*PAD_ANG]) rbox([3.2, 7, 13], 1.2); translate([s*(DBL/2+2), 3, -8]) rbox([3, 5, 9], 1); }
@@ -113,16 +104,14 @@ module front_cuts() {
         translate([0,-1,0]) plate(FRONT_T+2) lens2d(m);              // opening
         translate([0,-1,0]) plate(3.4) offset(r=1) lens2d(m);        // 2.4 mm rebate from the back for the tinted lens
     }
-    // horizontal beam channel: from the pod wall to the hood mirror
-    translate([COMB[0]-BEAM_H/2, COMB[1]-BEAM_W/2, BEAM_Z-BEAM_H/2]) cube([POD_CX-POD[0]/2+WALL+2-COMB[0]+BEAM_H/2, BEAM_W, BEAM_H]);
-    // hood mirror slot: 45° about Y (thin axis x), turns the beam downward
-    translate(MIR2_C) rotate([0,45,0]) cube([MIR[2]+0.6, MIR[0]+0.8, MIR[1]+0.8], center=true);
-    // vertical channel down through the hood floor
-    translate([COMB[0]-BEAM_H/2, COMB[1]-BEAM_W/2, HOOD_Z0-1]) cube([BEAM_H, BEAM_W, BEAM_Z-HOOD_Z0+1]);
-    // beam splitter slot: plate tilted 45° about X (top forward), held in the hood floor
-    translate(COMB) rotate([-45,0,0]) cube([BS[0]+0.8, BS[2]+0.6, BS[1]+0.8], center=true);
+    // beam channel: from the hood end to just past the beam splitter
+    translate([COMB[0]-2, COMB[1]-BEAM_W/2, BEAM_Z-BEAM_H/2]) cube([POD_CX-POD[0]/2+WALL+2-COMB[0], BEAM_W, BEAM_H]);
+    // beam splitter slot, 45° about Z, from below the bar up into the hood
+    translate(COMB) rotate([0,0,45]) cube([BS[0]+0.8, BS[2]+0.6, BS[1]+0.8], center=true);
+    // eye window: open the hood's back where the reflected beam exits
+    translate([COMB[0]-BEAM_W/2-1, -1, BEAM_Z-BEAM_H/2]) cube([BEAM_W+2, 4, BEAM_H]);
     // battery wire groove along the top-back edge of the bar (2.6 x 2.6), left pod -> right pod
-    translate([-HOOD_X1-10, -0.1, BAR_Z1-3.6]) cube([2*HOOD_X1+16, 3.2, 3.7]);   // 9 wires: battery, I2C, I2S
+    translate([-HOOD_X1-10, -0.1, BAR_Z1-2.6]) cube([2*HOOD_X1+16, 2.6, 2.7]);
 }
 module frame_only() difference() { front_solid(); front_cuts(); }
 module half(s) { // everything of one side, in the unwrapped frame: half of the frame + its pod
@@ -163,23 +152,23 @@ module pod_right_cuts() {
     translate([POD_CX-POD[0]/2-1, COMB[1]-BEAM_W/2, BEAM_Z-BEAM_H/2]) cube([12, BEAM_W, BEAM_H]);
     // lens seat: cylindrical pocket along X just inside the inner wall (lens dropped in from the lid side)
     translate([LENS_X-LENS_T/2-CLR, COMB[1], BEAM_Z]) rotate([0,90,0]) cylinder(d=LENS_D+2*CLR, h=LENS_T+2*CLR);
-    // OLED slot: board in the XZ plane, PORTRAIT, screen facing +Y; active area off-centre by OLED_OFF in x
-    translate([POD_CX+OLED_OFF-OLED_PCB[0]/2-CLR, OLED_Y-OLED_PCB[2]-CLR, BEAM_Z-OLED_PCB[1]/2-CLR])
+    // OLED slot: board in the XZ plane, screen facing +Y; active area 4 mm below board centre
+    translate([POD_CX-OLED_PCB[0]/2-CLR, OLED_Y-OLED_PCB[2]-CLR, BEAM_Z+4-OLED_PCB[1]/2-CLR])
         cube([OLED_PCB[0]+2*CLR+6, OLED_PCB[2]+2*CLR, OLED_PCB[1]+2*CLR]);
-    // pod mirror slot: plane along (1,-1,0), 45° about Z
+    // fold mirror slot: plane along (1,-1,0), 45° about Z
     translate(MIR_C) rotate([0,0,-45]) cube([MIR[0]+0.8, MIR[2]+0.6, MIR[1]+0.8], center=true);
+    // camera window in the front wall (XIAO lies flat above the beam, camera FPC bends to the wall)
+    translate([POD_CX+6, POD_CY+POD[1]/2-WALL-1, 31]) rotate([-90,0,0]) cylinder(d=6.5, h=WALL+2);
     // push-to-talk button through the top wall
-    translate([POD_CX-6, -20, POD_Z0+POD[2]-WALL-1]) cylinder(d=BTN[0]+1.2, h=WALL+2);
+    translate([POD_CX-4, -8, POD_Z0+POD[2]-WALL-1]) cylinder(d=BTN[0]+1.2, h=WALL+2);
     // speaker wires to the temple: hole next to the hinge
     translate([POD_CX+6, POD_CY-POD[1]/2-1, TEMPLE_Z-1.5]) cube([3, WALL+2, 3]);
     // battery wires from the bar groove
-    translate([POD_CX-POD[0]/2-1, -0.1, BAR_Z1-3.6]) cube([5, 3.2, 3.7]);
+    translate([POD_CX-POD[0]/2-1, -0.1, BAR_Z1-2.6]) cube([5, 2.6, 2.7]);
 }
 module pod_left_cuts() {
-    translate([-POD_CX+POD[0]/2-4, -0.1, BAR_Z1-3.6]) cube([5, 3.2, 3.7]);        // wire groove exit
-    translate([-POD_CX+8, POD_CY+POD[1]/2-WALL-1, 30]) rotate([-90,0,0]) cylinder(d=6.5, h=WALL+2);   // camera window (XIAO stands in the left pod)
-    translate([-POD_CX-9, POD_CY+POD[1]/2-WALL-1, 30]) rotate([-90,0,0]) cylinder(d=3.2, h=WALL+2);   // status LED
-    translate([-POD_CX-1, 12, POD_Z0+POD[2]-WALL-1]) rbox([4, 9.6, WALL+2+2], 1);                     // USB-C slot through the top wall
+    translate([-POD_CX+POD[0]/2-4, -0.1, BAR_Z1-2.6]) cube([5, 2.6, 2.7]);        // wire groove exit
+    translate([-POD_CX-6, POD_CY+POD[1]/2-WALL-1, 31]) rotate([-90,0,0]) cylinder(d=3.2, h=WALL+2); // LED
 }
 module pod(s) {
     difference() {
@@ -201,6 +190,7 @@ module lid(s) {
         translate([ox, POD_CY-POD[1]/2+WALL+CLR/2, POD_Z0+WALL+CLR/2]) cube([LID_T, POD[1]-2*WALL-CLR, POD[2]-2*WALL-CLR]);
         for (y=[POD_CY-POD[1]/2+WALL+3, POD_CY+POD[1]/2-WALL-3]) for (z=[POD_Z0+WALL+3, POD_Z0+POD[2]-WALL-3])
             translate([ox-1, y, z]) rotate([0,90,0]) { clr(LID_T+2); translate([0,0,LID_T+0.2]) head(3); }
+        if (s>0) translate([ox-1, 10.5, 19]) cube([LID_T+2, 9.6, 4]);   // USB-C window (XIAO main board at the bottom of the stack, port faces +X)
     }
 }
 
@@ -245,23 +235,18 @@ module temple_body(s) {
 }
 
 // ================================================================ GHOSTS ====
-module ghosts() { rotate([0,0,-WRAP]) ghosts_r(); rotate([0,0,WRAP]) ghosts_l(); }
-module ghosts_l() {
-    color("orange", 0.7) translate([-POD_CX-POD[0]/2+WALL+0.4, POD_CY-BAT[0]/2, 8]) cube([BAT[2], BAT[0], BAT[1]]);
-    color("green", 0.6)  translate([-POD_CX-POD[0]/2+WALL+BAT[2]+2, POD_CY+POD[1]/2-WALL-XIAO[1]-1, 8]) cube([XIAO[2], XIAO[1], XIAO[0]]);
-}
-module ghosts_r() {
-    color("blue", 0.7)   translate([POD_CX+OLED_OFF-OLED_PCB[0]/2, OLED_Y-OLED_PCB[2], BEAM_Z-OLED_PCB[1]/2]) cube([OLED_PCB[0], OLED_PCB[2], OLED_PCB[1]]);
+module ghosts() {
+    color("blue", 0.7)   translate([POD_CX-OLED_PCB[0]/2, OLED_Y-OLED_PCB[2], BEAM_Z+4-OLED_PCB[1]/2]) cube([OLED_PCB[0], OLED_PCB[2], OLED_PCB[1]]);
     color("silver", 0.9) translate(MIR_C) rotate([0,0,-45]) cube([MIR[0], MIR[2], MIR[1]], center=true);
-    color("silver", 0.9) translate(MIR2_C) rotate([0,45,0]) cube([MIR[2], MIR[0], MIR[1]], center=true);
     color("cyan", 0.5)   translate([LENS_X, COMB[1], BEAM_Z]) rotate([0,90,0]) cylinder(d=LENS_D, h=LENS_T, center=true);
-    color("cyan", 0.4)   translate(COMB) rotate([-45,0,0]) cube([BS[0], BS[2], BS[1]], center=true);
-    color("red", 0.7)    translate([POD_CX-AMP[0]/2, POD_CY-POD[1]/2+WALL+0.4, 2]) cube([AMP[0], AMP[2], AMP[1]]); // amp at the back wall (right pod)
-    color("yellow", 0.3) translate([COMB[0]-BEAM_H/2, COMB[1]-BEAM_W/2*0.99, COMB[2]]) cube([BEAM_H, BEAM_W*0.99, BEAM_Z-COMB[2]]);   // vertical run
+    color("cyan", 0.4)   translate(COMB) rotate([0,0,45]) cube([BS[0], BS[2], BS[1]], center=true);
+    color("green", 0.6)  translate([POD_CX-XIAO[0]/2+3, 7, BEAM_Z+MIR[1]/2+0.8]) cube(XIAO);          // XIAO flat above the mirror (z 20.8..35.8)
+    color("red", 0.7)    translate([POD_CX-AMP[0]/2, POD_CY-POD[1]/2+WALL+0.4, 2]) cube([AMP[0], AMP[2], AMP[1]]); // amp at the back wall
+    color("orange", 0.7) translate([-POD_CX-4, POD_CY-BAT[0]/2, 8]) cube([BAT[2], BAT[0], BAT[1]]);
     color("gray", 0.7)   translate([HINGE[0]-TEMPLE_W/2, HINGE[1]-TEMPLE_L+16, TEMPLE_Z]) rotate([0,90,0]) cylinder(d=SPK_D, h=SPK_T);
-    color("yellow", 0.3) translate([POD_CX-5.45, OLED_Y, BEAM_Z-10.85]) cube([10.9, MIR_C[1]-OLED_Y, 21.7]);           // pod: forward
-    color("yellow", 0.3) translate([COMB[0], COMB[1]-5.45, BEAM_Z-10.85]) cube([MIR_C[0]-COMB[0], 10.9, 21.7]);        // hood: toward the nose
-    color("yellow", 0.3) translate([COMB[0]-10.85, -VD, -5.45]) cube([21.7, COMB[1]+VD, 10.9]);                        // splitter -> eye
+    color("yellow", 0.3) translate([POD_CX-BEAM_W/2, OLED_Y, BEAM_Z-5.45]) cube([BEAM_W, MIR_C[1]-OLED_Y, 10.9]);
+    color("yellow", 0.3) translate([COMB[0], COMB[1]-BEAM_W/2, BEAM_Z-5.45]) cube([MIR_C[0]-COMB[0], BEAM_W, 10.9]);
+    color("yellow", 0.3) translate([COMB[0]-BEAM_W/2, -VD, BEAM_Z-5.45]) cube([BEAM_W, COMB[1]+VD, 10.9]);
 }
 
 // ================================================================== PEGS ====
@@ -283,7 +268,7 @@ module assembly() {
     color("dimgray") front();
     color("darkslategray") { lid_wrapped(1); lid_wrapped(-1); }
     color("dimgray") { temple_wrapped(1); temple_wrapped(-1); }
-    if (show_parts) ghosts();
+    if (show_parts) rotate([0,0,-WRAP]) ghosts();
     if (show_head) head_ghost();
 }
 if (part == "front") front();
@@ -292,11 +277,10 @@ else if (part == "lid_l") lid(-1);
 else if (part == "temple_r") temple(1);
 else if (part == "temple_l") temple(-1);
 else if (part == "pegs") pegs();
-else if (part == "fit") { %front(); ghosts(); }
 else if (part == "layout") { // right pod with the outer wall removed + ghost parts, seen from the lid side
     color("dimgray") difference() { pod(1); translate([POD_CX+POD[0]/2-WALL-3, -100, -50]) cube([50, 200, 100]); }
     color("dimgray") intersection() { frame_only(); translate([POD_CX-POD[0]/2-40, -50, -60]) cube([40, 120, 120]); }
-    ghosts_r();
+    ghosts();
 }
 else if (part == "exploded") {
     color("dimgray") front();
