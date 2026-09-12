@@ -121,6 +121,7 @@ if (optics) {
       $$(`.b${i}`, svg).forEach(el => el.classList.toggle('on', i <= k));
     }
     $$('.l0', svg).forEach(el => el.classList.toggle('on', k >= 0));
+    // beams: b1 (mirror->lens) from step 1, b2 (lens->splitter) from step 2, b3 (splitter->eye) from step 3
   };
   const io = new IntersectionObserver(es => { for (const e of es) if (e.isIntersecting) show(+e.target.dataset.step); }, { rootMargin: '-45% 0px -45% 0px' });
   $$('[data-step]', optics).forEach(s => io.observe(s));

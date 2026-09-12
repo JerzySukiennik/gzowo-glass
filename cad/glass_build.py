@@ -149,8 +149,8 @@ def lights():
 STL = os.path.join(HERE, 'stl')
 EX = 31.5                                   # PD/2
 LENS_IN = [(6, 6), (50, 6), (52, -2), (48, -14), (40, -20), (20, -21), (9, -17), (5, -6)]
-COMB = (EX, 16, 0)                          # beam splitter centre (SCAD: COMB), in the unwrapped right frame; plate tilted 45° about X
-WRAP = math.radians(6)                      # SCAD: WRAP — each half rotated about Z at the bridge
+COMB = (EX, 17.5, 0)                        # beam splitter centre (SCAD: COMB v0.6), on the pupil axis; plate tilted 45° about X
+WRAP = 0.0                                  # v0.6: flat back, no wrap (kept so the helpers stay valid)
 
 def wrap(p, side=1):
     """Rotate a point of the right (side=1) / left (side=-1) half about Z by -side*WRAP (as glass.scad does)."""
@@ -176,13 +176,13 @@ def build_glasses():
     root = bpy.data.objects.new('GLASS', None); bpy.context.collection.objects.link(root)
     for n in ('front', 'temple_r', 'temple_l'):
         import_stl(n, M_FRAME, root)
-    for n in ('lid_r', 'lid_l'):
+    for n in ('lid_r', 'lid_l', 'lid_hood'):
         import_stl(n, M_FRAME2, root)
     # tinted lenses sit in the 2.4 mm rebate at the back of the rims
     for side, mirror in (('R', False), ('L', True)):
         outline_mesh(f'lens_{side}', LENS_IN, 0.4, 2.4, M_LENS, mirror, root)
     # beam splitter hanging below the hood, 45 deg about Z
-    comb = box('combiner', wrap(COMB), (30, 1.6, 30), M_COMB, 0.2, rot=(math.radians(-45), 0, -WRAP), parent=root)
+    comb = box('combiner', wrap(COMB), (25, 1.1, 25), M_COMB, 0.2, rot=(math.radians(-45), 0, -WRAP), parent=root)
     # HUD content on the eye side of the plate (upper part, where the beam lands)
     bpy.ops.object.text_add(location=wrap((COMB[0], COMB[1] - 0.6, COMB[2] + 0.6))); t = bpy.context.object; t.name = 'hud_text'
     t.data.body = '12:34\nGLASS'; t.data.size = 4; t.data.align_x = 'CENTER'; t.data.align_y = 'CENTER'
@@ -190,10 +190,10 @@ def build_glasses():
     t.rotation_euler = Euler((math.radians(45), 0, math.radians(180) - WRAP), 'XYZ')
     t.location = Vector(wrap((COMB[0], COMB[1] - 0.6, COMB[2] + 0.6)))
     t.parent = root
-    # camera lens glass in the right pod's front wall, status LED on the left pod
-    cyl('cam_glass', wrap((88, 27.3, 31)), 2.8, 0.6, M_CAM, 'Y', root); bpy.context.object.rotation_euler.z = -WRAP
-    cyl('button_cap', wrap((78, -8, 38.3)), 3.4, 1.2, M_FRAME2, 'Z', root)
-    cyl('led', wrap((-88, 27.3, 31), -1), 1.3, 0.6, M_LED, 'Y', root); bpy.context.object.rotation_euler.z = WRAP
+    # v0.6: camera window and status LED in the LEFT pod's front wall, button in the RIGHT pod lid
+    cyl('cam_glass', (-80, 33.8, 24), 2.8, 0.6, M_CAM, 'Y', root)
+    cyl('button_cap', (81, 0, 40.6), 1.8, 1.2, M_FRAME2, 'Z', root)
+    cyl('led', (-91, 33.8, 30), 1.3, 0.6, M_LED, 'Y', root)
     return root
 
 # --------------------------------------------------------------- mannequin ---
@@ -316,7 +316,7 @@ def site_stills():
     camera((300, 330, 170), (10, -30, 10), 85, 'cam_hero'); render(os.path.join(OUT, 'site-hero.png'), 2400, 1500)
     camera((60, 560, 40), (0, -20, 10), 85, 'cam_front'); render(os.path.join(OUT, 'site-front.png'), 2400, 1500)
     camera((190, 120, 90), (50, 10, 18), 100, 'cam_pod'); render(os.path.join(OUT, 'site-pod.png'), 2400, 1500)
-    camera((90, 160, 40), (31, 10, 5), 120, 'cam_eye'); render(os.path.join(OUT, 'site-eye.png'), 2400, 1500)
+    camera((110, 180, -10), (31, 8, 0), 100, 'cam_eye'); render(os.path.join(OUT, 'site-eye.png'), 2400, 1500)
     camera((-300, 330, 170), (-10, -30, 10), 85, 'cam_left'); render(os.path.join(OUT, 'site-left.png'), 2400, 1500)
     # mannequin shot (neutral head, never the scan)
     head = build_head()

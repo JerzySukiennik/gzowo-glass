@@ -48,41 +48,45 @@
   <section class="optics wrap" id="optics">
     <div class="stage">
       <div class="steps-copy">
-        <div class="on" data-copy="0"><p class="eyebrow">How the picture gets to your eye</p><h2 class="h2">A screen the size of a stamp.</h2><p>A 0.96 inch OLED sits in the right pod. White pixels on black. Black is what makes this work: an unlit pixel is simply transparent later on.</p></div>
-        <div data-copy="1"><p class="eyebrow">Fold one</p><h2 class="h2">Turn the corner.</h2><p>A front-surface mirror at 45 degrees sends the light along the brow, toward your nose, instead of out the front of the pod.</p></div>
-        <div data-copy="2"><p class="eyebrow">The lens</p><h2 class="h2">Push the image out to arm's length.</h2><p>Your eye cannot focus on something two centimetres away. A 50 mm lens makes the screen appear about 25 cm in front of you.</p></div>
-        <div data-copy="3"><p class="eyebrow">Fold two</p><h2 class="h2">Down, over the eye.</h2><p>Inside the hood a second mirror turns the beam straight down, right above your right eye.</p></div>
-        <div data-copy="4"><p class="eyebrow">The half-mirror</p><h2 class="h2">Half of the world, half of the screen.</h2><p>A 50/50 beam splitter tilted at 45 degrees. Light from the room passes through. Light from the screen bounces into your eye. Both at once, on the same line of sight.</p></div>
+        <div class="on" data-copy="0"><p class="eyebrow">How the picture gets to your eye</p><h2 class="h2">A screen the size of a stamp.</h2><p>A 0.96 inch OLED stands inside the hood above the right eye, facing sideways. White pixels on black. Black is what makes this work: an unlit pixel is simply transparent later on.</p></div>
+        <div data-copy="1"><p class="eyebrow">The mirror</p><h2 class="h2">One turn, straight down.</h2><p>The screen shines sideways into a front-surface mirror set at 45 degrees. The mirror sends the light down, toward the eye. That is the only mirror in the path.</p></div>
+        <div data-copy="2"><p class="eyebrow">The lens</p><h2 class="h2">Push the picture out to arm's length.</h2><p>Your eye cannot focus on something four centimetres away. A 50 mm lens in the hood floor makes the screen appear 20 to 40 cm in front of you. Sliding the OLED a few millimetres sets the distance.</p></div>
+        <div data-copy="3"><p class="eyebrow">The half-mirror</p><h2 class="h2">Bounce, do not pass.</h2><p>Under the lens hangs a beam splitter tilted at 45 degrees. The light coming down hits it and bounces sideways, straight into your eye. Nothing passes through here from above.</p></div>
+        <div data-copy="4"><p class="eyebrow">The world</p><h2 class="h2">Half of the room, half of the screen.</h2><p>The same plate is only half silvered. Light from in front of you passes through it into the same eye. Room and screen arrive on one line of sight, and two reflections mean the text reads the right way round.</p></div>
       </div>
-      <svg viewBox="0 0 680 460" role="img" aria-labelledby="optT"><title id="optT">Light path from the OLED to the eye</title>
+      <svg viewBox="0 0 680 460" role="img" aria-labelledby="optT"><title id="optT">Light path from the OLED to the eye, side view</title>
         <defs><filter id="glow"><feGaussianBlur stdDeviation="3"/></filter></defs>
-        <!-- pod -->
-        <rect class="part p0" x="470" y="60" width="150" height="250" rx="10" fill="none" stroke="#fff" stroke-width="1.2"/>
-        <rect class="part p0" x="500" y="262" width="90" height="12" rx="2" fill="#fff"/>
-        <text class="part p0" x="545" y="298" fill="#fff" font-size="12" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">OLED</text>
-        <!-- hood -->
-        <rect class="part p1" x="150" y="140" width="320" height="70" rx="8" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="5 5"/>
-        <!-- mirror 1 -->
-        <line class="part p1" x1="515" y1="205" x2="575" y2="145" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-        <!-- lens -->
-        <ellipse class="part p2" cx="470" cy="175" rx="7" ry="26" fill="none" stroke="#fff" stroke-width="1.5"/>
-        <!-- mirror 2 -->
-        <line class="part p3" x1="195" y1="150" x2="255" y2="200" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
-        <!-- splitter -->
-        <line class="part p4" x1="195" y1="325" x2="255" y2="265" stroke="#9fd8ff" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
-        <!-- eye -->
-        <circle class="part p4" cx="225" cy="405" r="22" fill="none" stroke="#fff" stroke-width="1.2"/>
-        <circle class="part p4" cx="225" cy="393" r="7" fill="#fff"/>
-        <text class="part p4" x="225" y="447" fill="#fff" font-size="12" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">right eye</text>
-        <!-- world light through splitter -->
-        <line class="part p4" x1="225" y1="230" x2="225" y2="280" stroke="#fff" stroke-width="1.2" stroke-dasharray="4 4"/>
-        <!-- beams -->
-        <line class="beam b0" x1="545" y1="262" x2="545" y2="180" pathLength="1"/>
-        <line class="beam b1" x1="540" y1="175" x2="478" y2="175" pathLength="1"/>
-        <line class="beam b2" x1="462" y1="175" x2="232" y2="175" pathLength="1"/>
-        <line class="beam b3" x1="225" y1="180" x2="225" y2="288" pathLength="1"/>
-        <line class="beam b4" x1="225" y1="298" x2="225" y2="380" pathLength="1"/>
-        <rect class="light l0" x="500" y="258" width="90" height="4" filter="url(#glow)"/>
+        <!-- side view: front of the face is to the RIGHT, the eye on the LEFT. Up is up. -->
+        <!-- hood outline -->
+        <rect class="part p0" x="250" y="40" width="330" height="200" rx="10" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="5 5"/>
+        <text class="part p0" x="415" y="30" fill="#fff" font-size="12" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">hood, seen from the side</text>
+        <!-- OLED: stands sideways, so from the side we see it edge-on and the beam comes toward us -->
+        <rect class="part p0" x="395" y="70" width="40" height="110" rx="3" fill="none" stroke="#fff" stroke-width="1.2"/>
+        <text class="part p0" x="415" y="130" fill="#fff" font-size="12" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">OLED</text>
+        <text class="part p0" x="415" y="146" fill="#fff" font-size="10" text-anchor="middle" font-family="-apple-system, Inter, sans-serif" opacity="0.7">shines toward you</text>
+        <!-- mirror at 45 deg about the axis into the page: seen edge-on as a horizontal line at beam height -->
+        <line class="part p1" x1="305" y1="125" x2="375" y2="125" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <circle class="part p1" cx="340" cy="112" r="6" fill="none" stroke="#fff" stroke-width="1.2"/><circle class="part p1" cx="340" cy="112" r="1.5" fill="#fff"/>
+        <text class="part p1" x="340" y="102" fill="#fff" font-size="10" text-anchor="middle" font-family="-apple-system, Inter, sans-serif" opacity="0.7">light arrives out of the page</text>
+        <!-- lens, horizontal in the hood floor -->
+        <ellipse class="part p2" cx="340" cy="215" rx="34" ry="7" fill="none" stroke="#fff" stroke-width="1.5"/>
+        <text class="part p2" x="395" y="220" fill="#fff" font-size="12" font-family="-apple-system, Inter, sans-serif">lens f = 50</text>
+        <!-- beam splitter tilted 45 deg, top toward the front (right) -->
+        <line class="part p3" x1="300" y1="345" x2="380" y2="265" stroke="#9fd8ff" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+        <text class="part p3" x="340" y="372" fill="#9fd8ff" font-size="12" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">half-mirror, 45°</text>
+        <!-- eye, to the left -->
+        <circle class="part p3" cx="120" cy="305" r="22" fill="none" stroke="#fff" stroke-width="1.2"/>
+        <circle class="part p3" cx="140" cy="305" r="7" fill="#fff"/>
+        <text class="part p3" x="120" y="347" fill="#fff" font-size="12" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">right eye</text>
+        <!-- world light from the front (right), through the splitter, into the eye -->
+        <line class="part p4" x1="600" y1="305" x2="352" y2="305" stroke="#fff" stroke-width="1.2" stroke-dasharray="4 4"/>
+        <line class="part p4" x1="328" y1="305" x2="150" y2="305" stroke="#fff" stroke-width="1.2" stroke-dasharray="4 4"/>
+        <text class="part p4" x="600" y="295" fill="#fff" font-size="12" text-anchor="end" font-family="-apple-system, Inter, sans-serif">the room, in front of you</text>
+        <!-- beams: mirror -> lens -> splitter (down), then splitter -> eye (left) -->
+        <line class="beam b1" x1="340" y1="130" x2="340" y2="206" pathLength="1"/>
+        <line class="beam b2" x1="340" y1="224" x2="340" y2="296" pathLength="1"/>
+        <line class="beam b3" x1="332" y1="305" x2="150" y2="305" pathLength="1"/>
+        <rect class="light l0" x="398" y="72" width="34" height="106" filter="url(#glow)" opacity="0"/>
       </svg>
     </div>
     <div class="steps" aria-hidden="true">

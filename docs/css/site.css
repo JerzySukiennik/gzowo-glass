@@ -149,6 +149,7 @@ img, canvas, video { max-width: 100%; display: block; }
 .optics .beam { stroke: var(--hud); stroke-width: 6; stroke-linecap: round; fill: none; stroke-dasharray: 1; stroke-dashoffset: 1; filter: drop-shadow(0 0 6px var(--hud-glow)); transition: stroke-dashoffset 700ms var(--ease); }
 .optics .beam.on { stroke-dashoffset: 0; }
 .optics .light { fill: var(--hud); opacity: 0; transition: opacity 300ms; }
+.optics .light.on { opacity: 0.35; }
 .optics .light.on { opacity: 1; }
 
 .explorer { padding: 64px 0; }
