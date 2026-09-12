@@ -1,0 +1,167 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G.L.A.S.S. Learn more</title>
+<meta name="description" content="How G.L.A.S.S. puts a display in your line of sight, how the assistant works, and every version so far.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0b'/%3E%3Crect x='10' y='24' width='44' height='18' rx='4' fill='%23f2f5f7'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="css/site.css">
+</head>
+<body class="dark">
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="./">G.L.A.S.S.</a>
+    <div class="nav-links">
+      <a href="#optics">Optics</a>
+      <a href="#assistant">Assistant</a>
+      <a href="#versions">Versions</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="lm-hero">
+    <div class="art ph" data-label="Concept render, parts on order" data-shot>
+      <img data-asset="hero.webp" alt="G.L.A.S.S. prototype on a dark background">
+    </div>
+    <div class="wrap copy">
+      <p class="eyebrow">G.L.A.S.S.</p>
+      <h1 class="display">See more.<br>Look normal.</h1>
+      <p class="small"><span data-version-long>Prototype.</span> Built for one face, in a room in Warsaw.</p>
+    </div>
+  </section>
+
+  <section class="scrub" aria-label="Turntable">
+    <div class="stage">
+      <div class="cap">
+        <h2 class="h1 on" data-cap="0">Printed, not molded.</h2>
+        <h2 class="h1" data-cap="1">Two pods. One line of sight.</h2>
+        <h2 class="h1" data-cap="2">Everything in the frame.</h2>
+      </div>
+      <div class="ph" data-label="Concept render" data-shot><canvas data-scrub width="1200" height="750" aria-label="Rotating view of the glasses"></canvas></div>
+    </div>
+  </section>
+
+  <section class="optics wrap" id="optics">
+    <div class="stage">
+      <div class="steps-copy">
+        <div class="on" data-copy="0"><p class="eyebrow">How the picture gets to your eye</p><h2 class="h2">A screen the size of a stamp.</h2><p>A 0.96 inch OLED sits in the right pod. White pixels on black. Black is what makes this work: an unlit pixel is simply transparent later on.</p></div>
+        <div data-copy="1"><p class="eyebrow">Fold one</p><h2 class="h2">Turn the corner.</h2><p>A front-surface mirror at 45 degrees sends the light along the brow, toward your nose, instead of out the front of the pod.</p></div>
+        <div data-copy="2"><p class="eyebrow">The lens</p><h2 class="h2">Push the image out to arm's length.</h2><p>Your eye cannot focus on something two centimetres away. A 50 mm lens makes the screen appear about 25 cm in front of you.</p></div>
+        <div data-copy="3"><p class="eyebrow">Fold two</p><h2 class="h2">Down, over the eye.</h2><p>Inside the hood a second mirror turns the beam straight down, right above your right eye.</p></div>
+        <div data-copy="4"><p class="eyebrow">The half-mirror</p><h2 class="h2">Half of the world, half of the screen.</h2><p>A 50/50 beam splitter tilted at 45 degrees. Light from the room passes through. Light from the screen bounces into your eye. Both at once, on the same line of sight.</p></div>
+      </div>
+      <svg viewBox="0 0 680 460" role="img" aria-labelledby="optT"><title id="optT">Light path from the OLED to the eye</title>
+        <defs><filter id="glow"><feGaussianBlur stdDeviation="3"/></filter></defs>
+        <!-- pod -->
+        <rect class="part p0" x="470" y="60" width="150" height="250" rx="10" fill="none" stroke="#fff" stroke-width="1.2"/>
+        <rect class="part p0" x="500" y="262" width="90" height="12" rx="2" fill="#fff"/>
+        <text class="part p0" x="545" y="298" fill="#fff" font-size="12" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">OLED</text>
+        <!-- hood -->
+        <rect class="part p1" x="150" y="140" width="320" height="70" rx="8" fill="none" stroke="#fff" stroke-width="1.2" stroke-dasharray="5 5"/>
+        <!-- mirror 1 -->
+        <line class="part p1" x1="515" y1="205" x2="575" y2="145" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <!-- lens -->
+        <ellipse class="part p2" cx="470" cy="175" rx="7" ry="26" fill="none" stroke="#fff" stroke-width="1.5"/>
+        <!-- mirror 2 -->
+        <line class="part p3" x1="195" y1="150" x2="255" y2="200" stroke="#fff" stroke-width="3" stroke-linecap="round"/>
+        <!-- splitter -->
+        <line class="part p4" x1="195" y1="325" x2="255" y2="265" stroke="#9fd8ff" stroke-width="3" stroke-linecap="round" opacity="0.9"/>
+        <!-- eye -->
+        <circle class="part p4" cx="225" cy="405" r="22" fill="none" stroke="#fff" stroke-width="1.2"/>
+        <circle class="part p4" cx="225" cy="393" r="7" fill="#fff"/>
+        <text class="part p4" x="225" y="447" fill="#fff" font-size="12" text-anchor="middle" font-family="-apple-system, Inter, sans-serif">right eye</text>
+        <!-- world light through splitter -->
+        <line class="part p4" x1="225" y1="230" x2="225" y2="280" stroke="#fff" stroke-width="1.2" stroke-dasharray="4 4"/>
+        <!-- beams -->
+        <line class="beam b0" x1="545" y1="262" x2="545" y2="180" pathLength="1"/>
+        <line class="beam b1" x1="540" y1="175" x2="478" y2="175" pathLength="1"/>
+        <line class="beam b2" x1="462" y1="175" x2="232" y2="175" pathLength="1"/>
+        <line class="beam b3" x1="225" y1="180" x2="225" y2="288" pathLength="1"/>
+        <line class="beam b4" x1="225" y1="298" x2="225" y2="380" pathLength="1"/>
+        <rect class="light l0" x="500" y="258" width="90" height="4" filter="url(#glow)"/>
+      </svg>
+    </div>
+    <div class="steps" aria-hidden="true">
+      <div class="step" data-step="0"></div>
+      <div class="step" data-step="1"></div>
+      <div class="step" data-step="2"></div>
+      <div class="step" data-step="3"></div>
+      <div class="step" data-step="4"></div>
+    </div>
+  </section>
+
+  <section class="explorer wrap">
+    <div class="card-x">
+      <div class="list" role="tablist" aria-label="Features">
+        <button class="item on" role="tab" aria-selected="true" data-x="0"><span class="t">HUD on your line of sight</span><span class="d">Look straight ahead and the text is there, about 25 cm out. Look at the room and the room is there. Nothing to flip up or down.</span></button>
+        <button class="item" role="tab" aria-selected="false" data-x="1"><span class="t">G.L.A.S.S., the assistant</span><span class="d">Gzowo Like A Smart Sass. Speaks Polish, keeps answers short, and will tell you when a question was not worth asking. Runs on a home server, so nothing leaves the house that does not have to.</span></button>
+        <button class="item" role="tab" aria-selected="false" data-x="2"><span class="t">One button</span><span class="d">Press: talk. Hold: back. That is the whole interface. Everything else is your voice.</span></button>
+      </div>
+      <div class="art ph" data-label="Concept render" data-shot>
+        <img class="on" data-asset="eye.webp" data-x="0" alt="The combiner in front of the right eye">
+        <img data-asset="front.webp" data-x="1" alt="Front view of the glasses">
+        <img data-asset="pod.webp" data-x="2" alt="The button on the right pod">
+      </div>
+    </div>
+  </section>
+
+  <section class="assist" id="assistant">
+    <div class="wrap row">
+      <div>
+        <p class="eyebrow">Try it</p>
+        <h2 class="h2">This is the whole screen.</h2>
+        <p class="lead" style="margin-top:12px">128 by 64 pixels, white on black, drawn exactly as the glasses will draw it. Ask something. The real thing answers in your ear as well.</p>
+        <p class="small" style="margin-top:14px">Sample answers only. The live assistant is paired to one pair of glasses.</p>
+      </div>
+      <div class="sim">
+        <div class="hud"><canvas data-hud="sim" width="128" height="64" aria-live="polite"></canvas></div>
+        <form data-sim-form>
+          <label class="sr" for="ask">Ask G.L.A.S.S.</label>
+          <input id="ask" type="text" placeholder="Ask G.L.A.S.S." autocomplete="off" maxlength="80">
+          <button class="pill" type="submit">Ask</button>
+        </form>
+        <div class="prompts" data-prompts>
+          <button type="button">Która godzina?</button>
+          <button type="button">Jaka pogoda w Gzowie?</button>
+          <button type="button">Co widzę?</button>
+          <button type="button">Ustaw timer na 10 minut</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="viewer wrap">
+    <p class="eyebrow">Turn it around</p>
+    <h2 class="h2">The model, as it will be printed.</h2>
+    <div class="box" style="margin-top:24px" data-viewer>
+      <span class="chip hint">Drag to rotate</span>
+    </div>
+  </section>
+
+  <section class="versions" id="versions">
+    <div class="wrap">
+      <p class="eyebrow">Versions</p>
+      <h2 class="h2">Every print so far.</h2>
+      <div class="grid" data-versions></div>
+    </div>
+  </section>
+</main>
+
+<div class="bar">
+  <span data-version-long>Prototype</span>
+  <a class="pill" href="https://github.com/JerzySukiennik/gzowo-glass" rel="noopener">Build log</a>
+</div>
+
+<footer class="foot">
+  <div class="wrap row">
+    <span class="small">Made in Gzowo. Printed on an X1C.</span>
+    <span class="small"><a href="./">Back to the start</a></span>
+  </div>
+</footer>
+<script type="module" src="js/site.js"></script>
+</body>
+</html>

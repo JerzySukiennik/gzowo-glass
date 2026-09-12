@@ -289,10 +289,51 @@ def turntable(frames=120):
     bpy.ops.render.render(animation=True)
     print('RENDERED turntable')
 
+def frames(n=96, w=1600, h=1000, out=None):
+    """Turntable as a PNG frame sequence for the website scroll-scrubber (white studio, no head)."""
+    sc = reset(); lights()
+    w_bg = sc.world.node_tree.nodes['Background']; w_bg.inputs[0].default_value = (1, 1, 1, 1)
+    sc.render.film_transparent = True
+    g = build_glasses()
+    pivot = bpy.data.objects.new('pivot', None); bpy.context.collection.objects.link(pivot)
+    pivot.location = (0, -55, 0); g.parent = pivot; g.location = (0, 55, 0)
+    camera((0, 420, 140), (0, -55, 5), 85, 'cam_turn')
+    sc.render.resolution_x = w; sc.render.resolution_y = h; sc.eevee.taa_render_samples = 48
+    sc.render.image_settings.file_format = 'PNG'; sc.render.image_settings.color_mode = 'RGBA'
+    out = out or os.path.join(OUT, 'frames'); os.makedirs(out, exist_ok=True)
+    for i in range(n):
+        pivot.rotation_euler = (0, 0, math.tau * i / n)
+        sc.render.filepath = os.path.join(out, f'f{i:03d}.png')
+        bpy.ops.render.render(write_still=True)
+    print('RENDERED frames', n)
+
+def site_stills():
+    """Hero + detail shots for the website: white studio, mannequin optional, transparent background."""
+    sc = reset(); lights()
+    sc.world.node_tree.nodes['Background'].inputs[0].default_value = (1, 1, 1, 1)
+    sc.render.film_transparent = True
+    g = build_glasses()
+    camera((300, 330, 170), (10, -30, 10), 85, 'cam_hero'); render(os.path.join(OUT, 'site-hero.png'), 2400, 1500)
+    camera((60, 560, 40), (0, -20, 10), 85, 'cam_front'); render(os.path.join(OUT, 'site-front.png'), 2400, 1500)
+    camera((190, 120, 90), (50, 10, 18), 100, 'cam_pod'); render(os.path.join(OUT, 'site-pod.png'), 2400, 1500)
+    camera((90, 160, 40), (31, 10, 5), 120, 'cam_eye'); render(os.path.join(OUT, 'site-eye.png'), 2400, 1500)
+    camera((-300, 330, 170), (-10, -30, 10), 85, 'cam_left'); render(os.path.join(OUT, 'site-left.png'), 2400, 1500)
+    # mannequin shot (neutral head, never the scan)
+    head = build_head()
+    camera((330, 420, 80), (10, -20, 10), 85, 'cam_head34'); render(os.path.join(OUT, 'site-head.png'), 2400, 1500)
+
+def glb():
+    sc = reset(); build_glasses()
+    for o in bpy.data.objects:
+        if o.type == 'MESH' and o.name.startswith(('lens_', 'combiner', 'hud_text')): o.data.materials[0].blend_method = 'BLEND'
+    path = os.path.join(OUT, 'glass.glb')
+    bpy.ops.export_scene.gltf(filepath=path, export_format='GLB', export_apply=True, export_draco_mesh_compression_enable=False)
+    print('EXPORTED', path)
+
 def save():
     sc = reset(); lights(); build_glasses(); build_head()
     bpy.ops.wm.save_as_mainfile(filepath=os.path.join(HERE, 'glass.blend'))
 
 if __name__ == '__main__':
     args = sys.argv[sys.argv.index('--') + 1:] if '--' in sys.argv else ['stills']
-    {'stills': stills, 'scan': lambda: stills(scan=True), 'turntable': turntable, 'save': save}[args[0]]()
+    {'stills': stills, 'scan': lambda: stills(scan=True), 'turntable': turntable, 'frames': frames, 'site': site_stills, 'glb': glb, 'save': save}[args[0]]()

@@ -5,3 +5,4 @@ cad/*.blend1
 reference/*
 !reference/.gitkeep
 !reference/README.md
+work/

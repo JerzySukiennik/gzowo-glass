@@ -55,7 +55,7 @@ LENS_D   = 30;  LENS_T = 6.5;   // biconvex f=50, centre thickness ~6
 BTN      = [6, 6, 5];           // tact switch
 BAT      = [40, 20, 8];         // battery pocket (y, z, x) -> edit when the cell is known
 S_TAP    = 2.4;  S_CLR = 2.9;  S_HEAD = 5.4;   // M2.5x12 in printed PLA: self-tap / clearance / head (Jurek: 2.2 was far too tight)
-WRAP     = 0;     // deg, face-form wrap. 0 = flat back for printing (Jurek, v0.5: wrap made the front unprintable)
+WRAP     = 6;     // deg, face-form wrap: each half of the front rotated about Z at the bridge
 CLR      = 0.4;  WALL = 1.6;
 
 // ---------------------------------------------------------------- layout ---
@@ -70,16 +70,16 @@ HOOD_Z0  = 5;   HOOD_Z1 = 31;  // hood is taller than the bar (beam 22 + walls)
 HOOD_D   = 33;                 // hood depth: the 30x30 hood mirror at 45° spans y 1..31
 MIR2_C   = [EX, COMB[1], BEAM_Z];    // hood mirror centre: turns the beam down onto the splitter
 OLED_OFF = 2;                        // OLED board centre offset in x (active area is off-centre on the PCB)
+LENS_X   = 70;                 // lens centre (axis X), seat just inside the right pod's inner wall
 POD      = [32, 64, 42];       // pod size x,y,z (z from POD_Z0); deep enough for the Ø30 lens at y=COMB[1]
 POD_Z0   = -4;                 // pod bottom (lens Ø30 needs room below the beam axis)
 POD_CX   = 82;                 // pod centre x (inner wall at 66, outer at 98)
 POD_CY   = 2;                  // pod y-range -30..34
-LENS_X   = POD_CX-POD[0]/2+WALL+1.2+LENS_T/2+CLR;   // lens centre (axis X): pocket starts 1.2 mm inside the inner wall
 MIR_C    = [POD_CX, COMB[1], BEAM_Z];             // pod mirror centre
 OLED_Y   = MIR_C[1] - (42 - (MIR_C[0] - LENS_X)); // screen plane y: OLED->mirror->lens = 42
 HINGE    = [POD_CX, POD_CY - POD[1]/2 - 4];       // temple hinge axis (x, y), behind the pod
 // hinge stack sized for one M2.5x12 from the top: pod top knuckle 4, temple knuckle 6.5, pod bottom knuckle 5 (tapped)
-HK_Z0 = 12; HK_BOT = 5; HK_TEMPLE = 7; HK_TOP = 5; HK_GAP = 0.6;   // v0.5: gap 0.3 -> 0.6 (temple jammed), knuckles 5/7/5
+HK_Z0 = 12; HK_BOT = 5; HK_TEMPLE = 6.5; HK_TOP = 4; HK_GAP = 0.3;
 TEMPLE_W = 12;  TEMPLE_H = 14;  TEMPLE_Z = 19;
 TEMPLE_SPLAY = 13;  // deg, temples open outward from the hinge (scan: head +-95 at the ears incl. hair, hinge at +-82)
 LID_T    = 2;
@@ -161,9 +161,8 @@ module hinge_knuckles(s) { // pod side: bottom (tapped) and top (clearance) knuc
 module pod_right_cuts() {
     // beam passage through the inner wall to the mirror (front is fused, no socket)
     translate([POD_CX-POD[0]/2-1, COMB[1]-BEAM_W/2, BEAM_Z-BEAM_H/2]) cube([12, BEAM_W, BEAM_H]);
-    // lens seat: blind cylindrical pocket that stops 1.2 mm short of the inner wall; only the beam window
-    // (cut above) goes through. Lens drops in from the lid side. (v0.5: the old pocket cut through the wall)
-    translate([POD_CX-POD[0]/2+WALL+1.2, COMB[1], BEAM_Z]) rotate([0,90,0]) cylinder(d=LENS_D+2*CLR, h=LENS_T+2*CLR);
+    // lens seat: cylindrical pocket along X just inside the inner wall (lens dropped in from the lid side)
+    translate([LENS_X-LENS_T/2-CLR, COMB[1], BEAM_Z]) rotate([0,90,0]) cylinder(d=LENS_D+2*CLR, h=LENS_T+2*CLR);
     // OLED slot: board in the XZ plane, PORTRAIT, screen facing +Y; active area off-centre by OLED_OFF in x
     translate([POD_CX+OLED_OFF-OLED_PCB[0]/2-CLR, OLED_Y-OLED_PCB[2]-CLR, BEAM_Z-OLED_PCB[1]/2-CLR])
         cube([OLED_PCB[0]+2*CLR+6, OLED_PCB[2]+2*CLR, OLED_PCB[1]+2*CLR]);
@@ -208,16 +207,10 @@ module lid(s) {
 // =============================================================== TEMPLES ====
 module temple(s) {
     hx = s*HINGE[0]; hy = HINGE[1];
+    translate([hx, hy, 0]) rotate([0,0,-s*TEMPLE_SPLAY]) translate([-hx, -hy, 0]) temple_body(s);
     difference() {
-        union() {
-            translate([hx, hy, 0]) rotate([0,0,-s*TEMPLE_SPLAY]) translate([-hx, -hy, 0]) temple_body(s);
-            // knuckle on the axis, with 0.5 mm chamfers top and bottom so it slides between the pod knuckles
-            translate([hx, hy, HK_Z0+HK_BOT+HK_GAP]) cylinder(r1=4.0, r2=4.5, h=0.5);
-            translate([hx, hy, HK_Z0+HK_BOT+HK_GAP+0.5]) cylinder(r=4.5, h=HK_TEMPLE-1);
-            translate([hx, hy, HK_Z0+HK_BOT+HK_GAP+HK_TEMPLE-0.5]) cylinder(r1=4.5, r2=4.0, h=0.5);
-        }
-        // the bore is cut LAST, through everything (v0.4 bug: the root hull was unioned after the cut and filled it)
-        translate([hx, hy, HK_Z0-1]) clr(HK_BOT+HK_TEMPLE+2*HK_GAP+HK_TOP+3);
+        translate([hx, hy, HK_Z0+HK_BOT+HK_GAP]) cylinder(r=4.5, h=HK_TEMPLE);   // knuckle on the axis
+        translate([hx, hy, HK_Z0-1]) clr(HK_BOT+HK_TEMPLE+HK_GAP+3);
     }
 }
 function bez(p0,p1,p2,p3,t) = pow(1-t,3)*p0 + 3*pow(1-t,2)*t*p1 + 3*(1-t)*t*t*p2 + pow(t,3)*p3;

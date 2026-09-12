@@ -6,7 +6,7 @@ Ali ~120 zł, bateria z domu. Budżet 250 zł z dużym zapasem. Zamawia Jurek.
 | # | Część | Link | Cena | Wariant do wybrania |
 |---|---|---|---|---|
 | 1 | **Seeed XIAO ESP32-S3 Sense** (mózg: kamera OV2640, mikrofon, 8 MB PSRAM, WiFi/BLE, ładowarka LiPo) | https://pl.aliexpress.com/item/1005006988111963.html | 65,59 zł | „1pc" (jeden wariant, kamera OV3660), dostawa 17–24 wrz |
-| 2 | **OLED 0,96" 128×64 I2C SSD1306** (wyświetlacz do combinera) | https://pl.aliexpress.com/item/1005009170035050.html | 8,40 zł | kolor **niebieski**, 4-pin IIC, 1 szt. |
+| 2 | **OLED 0,96" 128×64 I2C SSD1306** (wyświetlacz do combinera) | https://pl.aliexpress.com/item/1005009170035050.html | 8,40 zł | kolor **biały** (Jurek, 2026-09-12), 4-pin IIC, 1 szt. |
 | 3 | **Beam splitter 30×30 mm** (półprzezroczyste lustro, combiner przed okiem) | https://pl.aliexpress.com/item/1005012046261289.html | 36,18 zł | 30×30 mm, 50/50 |
 | 4 | **Soczewka Ø30 mm, f = 50 mm** (dwuwypukła, szkło) | https://pl.aliexpress.com/item/1005004213353520.html | ~3 zł | wariant **D30mm FL50mm** (25 mm nie ma w tym listingu; 30 jest OK) |
 | 5 | **Wzmacniacz I2S MAX98357** (dźwięk z ESP32 do głośnika) | https://pl.aliexpress.com/item/1005009356741606.html | 5,51 zł | 1 szt. |
