@@ -21,6 +21,20 @@ for (const img of $$('img[data-asset]')) {
   img.loading = 'lazy'; img.decoding = 'async';
 }
 
+// ---------------------------------------------------- product tiles (home) ---
+for (const tile of $$('[data-product]')) {
+  const prod = tile.dataset.product;
+  (async () => {
+    try {
+      const m = await (await fetch(`${prod}/assets/manifest.json`, { cache: 'no-cache' })).json();
+      const c = m.versions.find(v => v.version === m.current); if (!c) return;
+      for (const img of $$('img[data-asset]', tile)) { img.src = `${prod}/assets/${c.version}/${img.dataset.asset}`; img.loading = 'lazy'; }
+      for (const el of $$('[data-version]', tile)) el.textContent = `Prototype ${c.version}`;
+      if (!c.placeholder) tile.classList.add('final');
+    } catch {}
+  })();
+}
+
 // ------------------------------------------------------------- HUD 128x64 ---
 // 5x7 bitmap font, ASCII 32..126 (columns, LSB = top row). Classic GLCD font (Adafruit GFX, BSD), same one the firmware will use.
 const FONT = '000000000000005f00000007000700147f147f14242a7f2a12231308646236495620500008070300001c2241000041221c002a1c7f1c2a08083e080800807030000808080808000060600020100804023e5149453e00427f400072494949462141494d331814127f1027454545393c4a49493141211109073649494936464949291e0000140000004034000000081422411414141414004122140802015909063e415d594e7c1211127c7f494949363e414141227f4141413e7f494949417f090909013e414151737f0808087f00417f41002040413f017f081422417f404040407f021c027f7f0408107f3e4141413e7f090909063e4151215e7f09192946264949493203017f01033f4040403f1f2040201f3f4038403f631408146303047804036159494d43007f4141410204081020004141417f04020102044040404040000307080020545478407f284444383844444428384444287f385454541800087e090218a4a49c787f0804047800447d40002040403d007f1028440000417f40007c047804787c080404783844444438fc1824241818242418fc7c08040408485454542404043f44243c4040207c1c2040201c3c4030403c44281028444c9090907c4464544c440008364100000077000000413608000201020402';
@@ -67,12 +81,13 @@ for (const { h } of huds) idle(h, 0);
 // ------------------------------------------------------- assistant simulator ---
 let simBusy = false;
 const REPLIES = [
-  [/godzin|time|która/i, () => { const d = new Date(); return [`${pad(d.getHours())}:${pad(d.getMinutes())}`, 'Zegarek tez by to wiedzial.']; }],
-  [/pogod|weather/i, () => ['Gzowo: 17 C, chmury.', 'Kurtka. Nie dyskutuj.']],
-  [/widz|see|what.*this/i, () => ['Kamera: biurko, kabel,', 'jeden zaginiony srubokret.']],
-  [/timer|minut/i, () => ['Timer 10:00', 'Odliczam. Nie zapomnij.']],
-  [/kim jestes|who are you|nazyw/i, () => ['G.L.A.S.S.', 'Gzowo Like A Smart Sass.']],
-  [/./, () => ['Nie wiem.', 'Ale brzmialo powaznie.']],
+  [/godzin|time|która/i, () => { const d = new Date(); return [`Jest ${pad(d.getHours())}:${pad(d.getMinutes())}.`]; }],
+  [/pogod|weather/i, () => ['Gzowo: 17 C, zachmurzenie.', 'Wieczorem 11 C, wez kurtke.']],
+  [/widz|see|what.*this/i, () => ['Biurko, laptop, kabel USB-C', 'i srubokret pod klawiatura.']],
+  [/timer|minut/i, () => ['Timer 10:00 ustawiony.', 'Dam znac w uchu i tutaj.']],
+  [/kim jestes|who are you|nazyw/i, () => ['G.L.A.S.S.', 'Gzowo Like A Smart Sass.', 'Asystent w okularach.']],
+  [/dzieki|dzięki|thanks/i, () => ['Nie ma sprawy.']],
+  [/./, () => ['Tego jeszcze nie umiem.', 'Pogoda, timer, czas, kamera.']],
 ];
 function say(h, q, lines) {
   simBusy = true;
@@ -141,9 +156,9 @@ if (ex) ex.addEventListener('click', e => {
 const box = $('[data-viewer]');
 if (box && base) (async () => {
   try {
-    const THREE = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js');
-    const { GLTFLoader } = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/loaders/GLTFLoader.js');
-    const { OrbitControls } = await import('https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/controls/OrbitControls.js');
+    const THREE = await import('three');
+    const { GLTFLoader } = await import('three/addons/loaders/GLTFLoader.js');
+    const { OrbitControls } = await import('three/addons/controls/OrbitControls.js');
     const renderer = new THREE.WebGLRenderer({ antialias: true, alpha: true }); renderer.setPixelRatio(Math.min(2, devicePixelRatio));
     renderer.setSize(box.clientWidth, box.clientHeight); box.prepend(renderer.domElement);
     const scene = new THREE.Scene();
@@ -151,7 +166,7 @@ if (box && base) (async () => {
     scene.add(new THREE.HemisphereLight(0xffffff, 0x222226, 1.6));
     const key = new THREE.DirectionalLight(0xffffff, 2.2); key.position.set(200, 300, 200); scene.add(key);
     const ctl = new OrbitControls(cam, renderer.domElement); ctl.enableDamping = true; ctl.enablePan = false; ctl.autoRotate = !reduced; ctl.autoRotateSpeed = 0.8;
-    new GLTFLoader().load(base + 'glass.glb', g => { const m = g.scene; const b = new THREE.Box3().setFromObject(m); const c = b.getCenter(new THREE.Vector3()); m.position.sub(c); scene.add(m); ctl.target.set(0, 0, 0); });
+    new GLTFLoader().load(base + 'model.glb', g => { const m = g.scene; const b = new THREE.Box3().setFromObject(m); const c = b.getCenter(new THREE.Vector3()); m.position.sub(c); scene.add(m); ctl.target.set(0, 0, 0); });
     const loop = () => { ctl.update(); renderer.render(scene, cam); requestAnimationFrame(loop); }; loop();
     addEventListener('resize', () => { cam.aspect = box.clientWidth / box.clientHeight; cam.updateProjectionMatrix(); renderer.setSize(box.clientWidth, box.clientHeight); });
   } catch (e) { console.warn('viewer', e); }

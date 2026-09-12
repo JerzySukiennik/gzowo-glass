@@ -1,12 +1,12 @@
 #!/bin/bash
 # Regenerate everything the website shows from the current model:
-#   SCAD -> STL -> Blender stills + turntable frames + GLB -> docs/assets/<version>/ + manifest.json
+#   SCAD -> STL -> Blender stills + turntable frames + GLB -> docs/glass/assets/<version>/ + manifest.json
 # Usage: tools/render-site.sh <version> "<one-line change note>" [--placeholder]
 set -e
 cd "$(dirname "$0")/.."
 VER="${1:?version, e.g. v0.5}"; NOTE="${2:?change note}"; PH="$3"; ONLY="$4"   # 4th arg --convert-only reuses renders/
 B=/Applications/Blender.app/Contents/MacOS/Blender
-DEST="docs/assets/$VER"; mkdir -p "$DEST/frames"
+DEST="docs/glass/assets/$VER"; mkdir -p "$DEST/frames"
 
 if [ "$ONLY" != "--convert-only" ]; then
 echo "== STL"; cad/export-all.sh >/dev/null
@@ -31,14 +31,14 @@ open(f'{dest}/.count', 'w').write(str(len(frames)))
 print('webp', len(frames), 'frames + 6 stills')
 PY
 i=$(cat "$DEST/.count"); rm -f "$DEST/.count"
-cp renders/glass.glb "$DEST/glass.glb"
+cp renders/glass.glb "$DEST/model.glb"
 cp renders/glass-exploded.png "$DEST/exploded.png" 2>/dev/null || true
 
 PLACEHOLDER=false; [ "$PH" = "--placeholder" ] && PLACEHOLDER=true
 python3 - "$VER" "$NOTE" "$i" "$PLACEHOLDER" <<'PY'
 import json, sys, datetime, os
 ver, note, n, ph = sys.argv[1], sys.argv[2], int(sys.argv[3]), sys.argv[4] == 'true'
-p = 'docs/assets/manifest.json'
+p = 'docs/glass/assets/manifest.json'
 m = json.load(open(p)) if os.path.exists(p) else {"versions": []}
 m['versions'] = [v for v in m['versions'] if v['version'] != ver]
 m['versions'].append({"version": ver, "date": datetime.date.today().isoformat(), "note": note, "frames": n, "placeholder": ph})

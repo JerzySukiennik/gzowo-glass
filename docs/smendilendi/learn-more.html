@@ -1,0 +1,96 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smendiłendi Learn more</title>
+<meta name="description" content="How Smendiłendi is built: four servos, an ESP32, a touch sensor, a sculpted head, and every version that reached the printer.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0b'/%3E%3Crect x='12' y='22' width='40' height='20' rx='5' fill='%23e8e2d2'/%3E%3Crect x='16' y='42' width='6' height='10' fill='%23e8e2d2'/%3E%3Crect x='42' y='42' width='6' height='10' fill='%23e8e2d2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../css/site.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="dark">
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../">Gzowo Industries</a>
+    <div class="nav-links">
+      <a href="./">Smendiłendi</a>
+      <a href="#build">Build</a>
+      <a href="#versions">Versions</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="lm-hero">
+    <div class="art ph" data-label="Concept render" data-shot>
+      <img data-asset="hero.webp" alt="Smendiłendi on a dark background">
+    </div>
+    <div class="wrap copy">
+      <p class="eyebrow">Smendiłendi</p>
+      <h1 class="display">Four servos.<br>One grin.</h1>
+      <p class="small"><span data-version-long>Prototype.</span> Printed in ordinary PLA, measured with calipers, fitted by hand.</p>
+    </div>
+  </section>
+
+  <section class="scrub" aria-label="Turntable">
+    <div class="stage">
+      <div class="cap">
+        <h2 class="h1 on" data-cap="0">Small enough for a desk.</h2>
+        <h2 class="h1" data-cap="1">Every joint is a servo.</h2>
+        <h2 class="h1" data-cap="2">The head is a sculpture.</h2>
+      </div>
+      <div class="ph" data-label="Concept render" data-shot><canvas data-scrub width="1200" height="750" aria-label="Rotating view of the robot"></canvas></div>
+    </div>
+  </section>
+
+  <section class="explorer wrap" id="build">
+    <div class="card-x">
+      <div class="list" role="tablist" aria-label="How it is built">
+        <button class="item on" role="tab" aria-selected="true" data-x="0"><span class="t">Four servos, no knees</span><span class="d">One SG90 per leg, hidden inside the body, with only the shaft showing through the side wall. The legs screw straight onto the horns. Diagonal pairs swing together, the body rocks, and that waddle is the gait, not a stand-in for one.</span></button>
+        <button class="item" role="tab" aria-selected="false" data-x="1"><span class="t">A hand-sculpted head</span><span class="d">The body comes from code. The head does not. It was modelled in Blender with eyes, a nose, a smile and one ear, and it slides onto a 24 by 16 mm tongue at the front of the body. It is the one part no script can regenerate.</span></button>
+        <button class="item" role="tab" aria-selected="false" data-x="2"><span class="t">A touch on the back</span><span class="d">A capacitive pad sits under the cap on its back. Pet it and it knows. The plan is three sources of intent, a phone, a voice assistant and its own mood, all feeding one list of behaviours that the ESP32 plays back at 50 to 100 Hz.</span></button>
+        <button class="item" role="tab" aria-selected="false" data-x="3"><span class="t">Measured, not assumed</span><span class="d">Every clearance in the model comes from a printed test coupon. The body was rebuilt from scratch around a real servo, grown from 112 to 124 mm, and the lid fits with 0.15 mm to spare per side.</span></button>
+      </div>
+      <div class="art ph" data-label="Concept render" data-shot>
+        <img class="on" data-asset="side.webp" data-x="0" alt="Side view of the legs">
+        <img data-asset="head.webp" data-x="1" alt="The sculpted head">
+        <img data-asset="detail.webp" data-x="2" alt="The touch cap on the back">
+        <img data-asset="top.webp" data-x="3" alt="Top view of the body and lid">
+      </div>
+    </div>
+  </section>
+
+  <section class="viewer wrap">
+    <p class="eyebrow">Turn it around</p>
+    <h2 class="h2">The model, as it will be printed.</h2>
+    <div class="box" style="margin-top:24px" data-viewer>
+      <span class="chip hint">Drag to rotate</span>
+    </div>
+  </section>
+
+  <section class="versions" id="versions">
+    <div class="wrap">
+      <p class="eyebrow">Versions</p>
+      <h2 class="h2">Every print so far.</h2>
+      <div class="grid" data-versions></div>
+    </div>
+  </section>
+</main>
+
+<div class="bar">
+  <span data-version-long>Prototype</span>
+  <a class="pill" href="https://github.com/JerzySukiennik/gzowo-industries" rel="noopener">Build log</a>
+</div>
+
+<footer class="foot">
+  <div class="wrap row">
+    <span class="small">Made in Gzowo. Printed on an X1C.</span>
+    <span class="small"><a href="./">Back to Smendiłendi</a> <span aria-hidden="true">&middot;</span> <a href="../">Gzowo Industries</a></span>
+  </div>
+</footer>
+<script type="module" src="../js/site.js"></script>
+</body>
+</html>

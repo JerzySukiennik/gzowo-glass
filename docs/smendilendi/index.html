@@ -1,0 +1,69 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Smendiłendi</title>
+<meta name="description" content="A small 3D-printed robot dog on four servos and an ESP32, with a hand-sculpted head and a touch sensor on its back.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0b'/%3E%3Crect x='12' y='22' width='40' height='20' rx='5' fill='%23e8e2d2'/%3E%3Crect x='16' y='42' width='6' height='10' fill='%23e8e2d2'/%3E%3Crect x='42' y='42' width='6' height='10' fill='%23e8e2d2'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../css/site.css">
+</head>
+<body>
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../">Gzowo Industries</a>
+    <div class="nav-links">
+      <a href="../glass/">G.L.A.S.S.</a>
+      <a href="./" aria-current="page">Smendiłendi</a>
+      <a href="learn-more.html">Learn more</a>
+      <a href="https://github.com/JerzySukiennik/gzowo-industries" rel="noopener">Build log</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="hero wrap">
+    <span class="chip" data-version>prototype</span>
+    <h1 class="display">Smendiłendi</h1>
+    <p class="lead">Four servos. One grin.</p>
+    <p class="small" style="margin-top:14px">A small printed robot dog. Hobby servos, an ESP32, a touch sensor on its back, and a head sculpted by hand.</p>
+    <div class="cta">
+      <a class="pill" href="learn-more.html">Learn more</a>
+    </div>
+    <div class="hero-art ph" data-label="Concept render" data-shot>
+      <img data-asset="hero.webp" alt="Smendiłendi robot dog, three-quarter view" width="2000" height="1250">
+    </div>
+  </section>
+
+  <section class="cards">
+    <div class="wrap grid">
+      <article class="card">
+        <h2 class="h3">A face, not a box</h2>
+        <p>The head is not generated from code. It was sculpted in Blender, eyes, nose, smile and one ear, and it clips onto the body's neck tongue.</p>
+        <div class="art ph" data-label="Concept render" data-shot><img data-asset="head.webp" alt="Close-up of the sculpted head"></div>
+      </article>
+      <article class="card">
+        <h2 class="h3">Pet it</h2>
+        <p>A capacitive pad under the cap on its back knows when a hand is there. That is the whole input.</p>
+        <div class="art ph" data-label="Concept render" data-shot><img data-asset="detail.webp" alt="The touch cap on the back"></div>
+      </article>
+      <article class="card">
+        <h2 class="h3">It waddles</h2>
+        <p>Four servos, one per leg, no knees. Diagonal pairs swing together and the body rocks. That is the walk, and it stays.</p>
+        <div class="art ph" data-label="Concept render" data-shot><img data-asset="side.webp" alt="Side view showing the legs mid-step"></div>
+      </article>
+    </div>
+  </section>
+</main>
+
+<footer class="foot">
+  <div class="wrap row">
+    <span class="small">Made in Gzowo. Printed on an X1C. <span data-version-long>Prototype.</span></span>
+    <span class="small"><a href="https://github.com/JerzySukiennik/gzowo-industries" rel="noopener">Source and STL files on GitHub</a> <span aria-hidden="true">&middot;</span> <a href="https://gzowo.fun">Gzowo Labs</a></span>
+  </div>
+</footer>
+<script type="module" src="../js/site.js"></script>
+</body>
+</html>

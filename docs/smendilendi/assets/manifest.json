@@ -1,0 +1,12 @@
+{
+ "versions": [
+  {
+   "version": "v0.5",
+   "date": "2026-09-12",
+   "note": "Body rebuilt to the measured servo, 124 mm long. Fit tests closed, first full set printing.",
+   "frames": 96,
+   "placeholder": false
+  }
+ ],
+ "current": "v0.5"
+}

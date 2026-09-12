@@ -1,0 +1,209 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>G.L.A.S.S. Learn more</title>
+<meta name="description" content="How G.L.A.S.S. puts a display in your line of sight, how the assistant works, and every version so far.">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 64 64'%3E%3Crect width='64' height='64' rx='14' fill='%230a0a0b'/%3E%3Crect x='10' y='24' width='44' height='18' rx='4' fill='%23f2f5f7'/%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap">
+<link rel="stylesheet" href="../css/site.css">
+<script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js","three/addons/":"https://cdn.jsdelivr.net/npm/three@0.160.0/examples/jsm/"}}</script>
+</head>
+<body class="dark">
+<nav class="nav">
+  <div class="wrap">
+    <a class="brand" href="../">Gzowo Industries</a>
+    <div class="nav-links">
+      <a href="./">G.L.A.S.S.</a>
+      <a href="#optics">Optics</a>
+      <a href="#assistant">Assistant</a>
+      <a href="#versions">Versions</a>
+    </div>
+  </div>
+</nav>
+
+<main>
+  <section class="lm-hero">
+    <div class="art ph" data-label="Concept render, parts on order" data-shot>
+      <img data-asset="hero.webp" alt="G.L.A.S.S. prototype on a dark background">
+    </div>
+    <div class="wrap copy">
+      <p class="eyebrow">G.L.A.S.S.</p>
+      <h1 class="display">See more.<br>Look normal.</h1>
+      <p class="small"><span data-version-long>Prototype.</span> Built for one face, in a room in Warsaw.</p>
+    </div>
+  </section>
+
+  <section class="scrub" aria-label="Turntable">
+    <div class="stage">
+      <div class="cap">
+        <h2 class="h1 on" data-cap="0">Printed, not molded.</h2>
+        <h2 class="h1" data-cap="1">Two pods. One line of sight.</h2>
+        <h2 class="h1" data-cap="2">Everything in the frame.</h2>
+      </div>
+      <div class="ph" data-label="Concept render" data-shot><canvas data-scrub width="1200" height="750" aria-label="Rotating view of the glasses"></canvas></div>
+    </div>
+  </section>
+
+  <section class="optics wrap" id="optics">
+    <div class="stage">
+      <div class="steps-copy">
+        <div class="on" data-copy="0"><p class="eyebrow">How the picture gets to your eye</p><h2 class="h2">A screen the size of a stamp.</h2><p>A 0.96 inch OLED stands inside the hood above the right eye, facing sideways. White pixels on black. Black is what makes this work: an unlit pixel is simply transparent later on.</p></div>
+        <div data-copy="1"><p class="eyebrow">The mirror</p><h2 class="h2">One turn, straight down.</h2><p>The screen shines sideways into a front-surface mirror set at 45 degrees. The mirror sends the light down, toward the eye. That is the only mirror in the path.</p></div>
+        <div data-copy="2"><p class="eyebrow">The lens</p><h2 class="h2">Push the picture out to arm's length.</h2><p>Your eye cannot focus on something four centimetres away. A 50 mm lens in the hood floor makes the screen appear 20 to 40 cm in front of you. Sliding the OLED a few millimetres sets the distance.</p></div>
+        <div data-copy="3"><p class="eyebrow">The half-mirror</p><h2 class="h2">Bounce, do not pass.</h2><p>Under the lens hangs a beam splitter tilted at 45 degrees. The light coming down hits it and bounces sideways, straight into your eye. Nothing passes through here from above.</p></div>
+        <div data-copy="4"><p class="eyebrow">The world</p><h2 class="h2">Half of the room, half of the screen.</h2><p>The same plate is only half silvered. Light from in front of you passes through it into the same eye. Room and screen arrive on one line of sight, and two reflections mean the text reads the right way round.</p></div>
+      </div>
+      <svg viewBox="0 0 760 460" role="img" aria-labelledby="optT" font-family="-apple-system, Inter, sans-serif">
+        <title id="optT">Light path from the OLED to the eye, side view</title>
+        <defs><filter id="glow" x="-60%" y="-60%" width="220%" height="220%"><feGaussianBlur stdDeviation="4"/><feComponentTransfer><feFuncA type="linear" slope="0.4"/></feComponentTransfer></filter></defs>
+        <rect x="0" y="0" width="760" height="460" fill="#0a0a0b"/>
+        <!-- Side view of the RIGHT half of the glasses, true to cad/glass.scad (1 mm = 4 px).
+             Horizontal = y, the front of the face is to the RIGHT; the head and ear are to the LEFT.
+             Vertical = z, up is up. Origin (pupil axis, back face of the front frame) at (470, 278). -->
+
+        <!-- head profile: brow, nose bridge, skull, ear -->
+        <g class="part p0" fill="none" stroke="#ffffff" stroke-opacity="0.26" stroke-width="1.2" stroke-linecap="round">
+          <path d="M78 300 C68 240 66 180 78 140 C96 84 152 40 214 28 C272 17 322 30 350 58 C372 80 400 120 410 160 C418 190 430 202 434 214 C437 224 424 236 418 246 C410 257 404 268 406 278 C408 290 418 300 422 310 C430 332 442 350 452 372"/>
+          <ellipse cx="100" cy="286" rx="26" ry="66" transform="rotate(-8 100 286)"/>
+          <path d="M92 246 C112 258 112 300 96 320"/>
+        </g>
+
+        <!-- right pod: outside the section plane, so only a ghost outline -->
+        <rect class="part p0" x="402" y="126" width="184" height="168" rx="12" fill="none" stroke="#ffffff" stroke-opacity="0.18" stroke-width="1" stroke-dasharray="4 5"/>
+
+        <!-- temple, from the hinge behind the pod to the ear hook -->
+        <path class="part p0" d="M382 176 L142 176 C108 176 90 194 86 216 L80 256 Q79 268 90 268 Q101 268 102 256 L106 220 C109 202 120 196 144 196 L382 196 Z" fill="rgba(255,255,255,0.03)" stroke="#ffffff" stroke-width="1.3" stroke-linejoin="round"/>
+
+        <!-- hood: box on top of the right rim, open underneath where the lens looks down -->
+        <rect class="part p0" x="470" y="126" width="140" height="136" rx="12" fill="rgba(255,255,255,0.028)"/>
+        <path class="part p0" d="M594 262 L610 262 L610 138 Q610 126 598 126 L482 126 Q470 126 470 138 L470 262 L486 262" fill="none" stroke="#ffffff" stroke-width="1.4" stroke-linejoin="round"/>
+        <text class="part p0" x="470" y="118" fill="#ffffff" font-size="12">hood</text>
+
+        <!-- rim plate of the front frame, with the combiner window behind it -->
+        <rect class="part p0" x="470" y="246" width="24" height="128" rx="5" fill="rgba(255,255,255,0.05)" stroke="#ffffff" stroke-width="1.3"/>
+        <rect class="part p0" x="472" y="254" width="8" height="108" rx="3" fill="rgba(255,255,255,0.13)"/>
+
+        <!-- OLED, standing vertical on the pupil axis: seen edge-on we look straight at its 27x27 board -->
+        <rect class="part p0" x="486" y="136" width="108" height="108" rx="3" fill="none" stroke="#ffffff" stroke-opacity="0.28" stroke-width="1" stroke-dasharray="3 4"/>
+        <line class="part p0" x1="616" y1="148" x2="596" y2="148" stroke="#ffffff" stroke-opacity="0.4" stroke-width="0.9"/>
+        <text class="part p0" x="620" y="152" fill="#ffffff" font-size="12">OLED</text>
+        <text class="part p0" x="620" y="167" fill="#ffffff" font-size="10" opacity="0.6">screen faces you</text>
+        <rect class="light l0" x="497" y="168" width="86" height="44" rx="2" filter="url(#glow)" opacity="0"/>
+
+        <!-- first-surface mirror, 30x30 at 45 deg about the vertical axis: foreshortened to 30 x 21 -->
+        <rect class="part p1" x="480" y="146" width="120" height="88" rx="7" fill="rgba(255,255,255,0.07)" stroke="#ffffff" stroke-width="2"/>
+        <circle class="part p1" cx="540" cy="190" r="11" fill="none" stroke="#ffffff" stroke-width="1.4"/>
+        <line class="part p1" x1="616" y1="186" x2="604" y2="186" stroke="#ffffff" stroke-opacity="0.4" stroke-width="0.9"/>
+        <text class="part p1" x="620" y="190" fill="#ffffff" font-size="12">mirror</text>
+        <text class="part p1" x="620" y="205" fill="#ffffff" font-size="10" opacity="0.6">45&#176;, light out of the page</text>
+
+        <!-- biconvex lens, 30 wide and 6.5 thick, lying flat in the hood floor -->
+        <path class="part p2" d="M480 224.4 Q540 198.4 600 224.4 Q540 250.4 480 224.4 Z" fill="rgba(255,255,255,0.06)" stroke="#ffffff" stroke-width="1.6"/>
+        <line class="part p2" x1="616" y1="228" x2="602" y2="228" stroke="#ffffff" stroke-opacity="0.4" stroke-width="0.9"/>
+        <text class="part p2" x="620" y="232" fill="#ffffff" font-size="12">lens f = 50</text>
+
+        <!-- beam splitter, 25 x 25 x 1.1 on the pupil axis, tilted 45 deg, top edge toward the front -->
+        <path class="part p3" d="M503.2 311.6 L573.6 241.2 L576.8 244.4 L506.4 314.8 Z" fill="rgba(159,216,255,0.16)" stroke="#9fd8ff" stroke-width="1.6" stroke-linejoin="round"/>
+        <line class="part p3" x1="516" y1="329" x2="509" y2="319" stroke="#9fd8ff" stroke-opacity="0.5" stroke-width="0.9"/>
+        <text class="part p3" x="512" y="340" fill="#9fd8ff" font-size="12">half-mirror</text>
+
+        <!-- right eye: ball radius 12 behind the rim, cornea and pupil on the axis -->
+        <circle class="part p3" cx="338" cy="278" r="48" fill="rgba(255,255,255,0.05)" stroke="#ffffff" stroke-width="1.2"/>
+        <path class="part p3" d="M374 252 Q398 278 374 304" fill="none" stroke="#ffffff" stroke-width="1.2"/>
+        <circle class="part p3" cx="384" cy="278" r="5.5" fill="#ffffff"/>
+        <text class="part p3" x="338" y="344" fill="#ffffff" font-size="12" text-anchor="middle">right eye</text>
+
+        <!-- room light from in front, straight through the same plate into the same eye -->
+        <line class="part p4" x1="754" y1="242" x2="392" y2="276" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.75"/>
+        <line class="part p4" x1="754" y1="314" x2="392" y2="280" stroke="#ffffff" stroke-width="1.2" stroke-dasharray="5 5" opacity="0.75"/>
+        <text class="part p4" x="752" y="228" fill="#ffffff" font-size="12" text-anchor="end">the room</text>
+
+        <!-- the beam itself: mirror -> lens -> splitter, then sideways into the eye -->
+        <line class="beam b1" x1="540" y1="190" x2="540" y2="211" pathLength="1"/>
+        <line class="beam b2" x1="540" y1="237" x2="540" y2="278" pathLength="1"/>
+        <line class="beam b3" x1="540" y1="278" x2="390" y2="278" pathLength="1"/>
+      </svg>
+    </div>
+    <div class="steps" aria-hidden="true">
+      <div class="step" data-step="0"></div>
+      <div class="step" data-step="1"></div>
+      <div class="step" data-step="2"></div>
+      <div class="step" data-step="3"></div>
+      <div class="step" data-step="4"></div>
+    </div>
+  </section>
+
+  <section class="explorer wrap">
+    <div class="card-x">
+      <div class="list" role="tablist" aria-label="Features">
+        <button class="item on" role="tab" aria-selected="true" data-x="0"><span class="t">HUD on your line of sight</span><span class="d">Look straight ahead and the text is there, about 25 cm out. Look at the room and the room is there. Nothing to flip up or down.</span></button>
+        <button class="item" role="tab" aria-selected="false" data-x="1"><span class="t">G.L.A.S.S., the assistant</span><span class="d">Gzowo Like A Smart Sass. Speaks Polish, keeps answers short, and will tell you when a question was not worth asking. Runs on a home server, so nothing leaves the house that does not have to.</span></button>
+        <button class="item" role="tab" aria-selected="false" data-x="2"><span class="t">One button</span><span class="d">Press: talk. Hold: back. That is the whole interface. Everything else is your voice.</span></button>
+      </div>
+      <div class="art ph" data-label="Concept render" data-shot>
+        <img class="on" data-asset="eye.webp" data-x="0" alt="The combiner in front of the right eye">
+        <img data-asset="front.webp" data-x="1" alt="Front view of the glasses">
+        <img data-asset="pod.webp" data-x="2" alt="The button on the right pod">
+      </div>
+    </div>
+  </section>
+
+  <section class="assist" id="assistant">
+    <div class="wrap row">
+      <div>
+        <p class="eyebrow">Try it</p>
+        <h2 class="h2">This is the whole screen.</h2>
+        <p class="lead" style="margin-top:12px">128 by 64 pixels, white on black, drawn exactly as the glasses will draw it. Ask something. The real thing answers in your ear as well.</p>
+        <p class="small" style="margin-top:14px">Sample answers only. The live assistant is paired to one pair of glasses.</p>
+      </div>
+      <div class="sim">
+        <div class="hud"><canvas data-hud="sim" width="128" height="64" aria-live="polite"></canvas></div>
+        <form data-sim-form>
+          <label class="sr" for="ask">Ask G.L.A.S.S.</label>
+          <input id="ask" type="text" placeholder="Ask G.L.A.S.S." autocomplete="off" maxlength="80">
+          <button class="pill" type="submit">Ask</button>
+        </form>
+        <div class="prompts" data-prompts>
+          <button type="button">Która godzina?</button>
+          <button type="button">Jaka pogoda w Gzowie?</button>
+          <button type="button">Co widzę?</button>
+          <button type="button">Ustaw timer na 10 minut</button>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="viewer wrap">
+    <p class="eyebrow">Turn it around</p>
+    <h2 class="h2">The model, as it will be printed.</h2>
+    <div class="box" style="margin-top:24px" data-viewer>
+      <span class="chip hint">Drag to rotate</span>
+    </div>
+  </section>
+
+  <section class="versions" id="versions">
+    <div class="wrap">
+      <p class="eyebrow">Versions</p>
+      <h2 class="h2">Every print so far.</h2>
+      <div class="grid" data-versions></div>
+    </div>
+  </section>
+</main>
+
+<div class="bar">
+  <span data-version-long>Prototype</span>
+  <a class="pill" href="https://github.com/JerzySukiennik/gzowo-industries" rel="noopener">Build log</a>
+</div>
+
+<footer class="foot">
+  <div class="wrap row">
+    <span class="small">Made in Gzowo. Printed on an X1C.</span>
+    <span class="small"><a href="./">Back to G.L.A.S.S.</a> <span aria-hidden="true">&middot;</span> <a href="../">Gzowo Industries</a></span>
+  </div>
+</footer>
+<script type="module" src="../js/site.js"></script>
+</body>
+</html>

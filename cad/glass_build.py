@@ -192,7 +192,7 @@ def build_glasses():
     t.parent = root
     # v0.6: camera window and status LED in the LEFT pod's front wall, button in the RIGHT pod lid
     cyl('cam_glass', (-80, 33.8, 24), 2.8, 0.6, M_CAM, 'Y', root)
-    cyl('button_cap', (81, 0, 40.6), 1.8, 1.2, M_FRAME2, 'Z', root)
+    cyl('button_cap', (81, 0, 41.0), 2.0, 2.0, M_FRAME2, 'Z', root)
     cyl('led', (-91, 33.8, 30), 1.3, 0.6, M_LED, 'Y', root)
     return root
 
@@ -265,7 +265,7 @@ def stills(scan=False):
     bpy.ops.mesh.primitive_plane_add(size=3000, location=(0, -60, -30)); fl = bpy.context.object; fl.data.materials.append(M_FLOOR)
     camera((300, 330, 170), (10, -30, 10), 85, 'cam_prod34'); render(os.path.join(OUT, 'glass-product-front34.png'))
     camera((0, -60, 700), (0, -60, 0), 85, 'cam_top'); render(os.path.join(OUT, 'glass-product-top.png'))
-    camera((190, 120, 90), (50, 10, 18), 100, 'cam_pod'); render(os.path.join(OUT, 'glass-detail-pod.png'))
+    camera((150, 60, 130), (81, 2, 38), 90, 'cam_pod'); render(os.path.join(OUT, 'glass-detail-pod.png'))
     camera((-300, 330, 170), (-10, -30, 10), 85, 'cam_prod34L'); render(os.path.join(OUT, 'glass-product-front34-left.png'))
 
 def turntable(frames=120):
@@ -297,7 +297,7 @@ def frames(n=96, w=1600, h=1000, out=None):
     g = build_glasses()
     pivot = bpy.data.objects.new('pivot', None); bpy.context.collection.objects.link(pivot)
     pivot.location = (0, -55, 0); g.parent = pivot; g.location = (0, 55, 0)
-    camera((0, 420, 140), (0, -55, 5), 85, 'cam_turn')
+    camera((0, 440, 150), (0, -55, 2), 60, 'cam_turn')
     sc.render.resolution_x = w; sc.render.resolution_y = h; sc.eevee.taa_render_samples = 48
     sc.render.image_settings.file_format = 'PNG'; sc.render.image_settings.color_mode = 'RGBA'
     out = out or os.path.join(OUT, 'frames'); os.makedirs(out, exist_ok=True)
@@ -313,14 +313,14 @@ def site_stills():
     sc.world.node_tree.nodes['Background'].inputs[0].default_value = (1, 1, 1, 1)
     sc.render.film_transparent = True
     g = build_glasses()
-    camera((300, 330, 170), (10, -30, 10), 85, 'cam_hero'); render(os.path.join(OUT, 'site-hero.png'), 2400, 1500)
-    camera((60, 560, 40), (0, -20, 10), 85, 'cam_front'); render(os.path.join(OUT, 'site-front.png'), 2400, 1500)
-    camera((190, 120, 90), (50, 10, 18), 100, 'cam_pod'); render(os.path.join(OUT, 'site-pod.png'), 2400, 1500)
+    camera((330, 360, 190), (0, -40, 8), 60, 'cam_hero'); render(os.path.join(OUT, 'site-hero.png'), 2400, 1500)
+    camera((40, 600, 60), (0, -20, 8), 70, 'cam_front'); render(os.path.join(OUT, 'site-front.png'), 2400, 1500)
+    camera((150, 60, 130), (81, 2, 38), 90, 'cam_pod'); render(os.path.join(OUT, 'site-pod.png'), 2400, 1500)
     camera((110, 180, -10), (31, 8, 0), 100, 'cam_eye'); render(os.path.join(OUT, 'site-eye.png'), 2400, 1500)
-    camera((-300, 330, 170), (-10, -30, 10), 85, 'cam_left'); render(os.path.join(OUT, 'site-left.png'), 2400, 1500)
+    camera((-330, 360, 190), (0, -40, 8), 60, 'cam_left'); render(os.path.join(OUT, 'site-left.png'), 2400, 1500)
     # mannequin shot (neutral head, never the scan)
     head = build_head()
-    camera((330, 420, 80), (10, -20, 10), 85, 'cam_head34'); render(os.path.join(OUT, 'site-head.png'), 2400, 1500)
+    camera((360, 460, 90), (0, -30, 5), 65, 'cam_head34'); render(os.path.join(OUT, 'site-head.png'), 2400, 1500)
 
 def glb():
     sc = reset(); build_glasses()
