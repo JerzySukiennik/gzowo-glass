@@ -149,7 +149,7 @@ def lights():
 STL = os.path.join(HERE, 'stl')
 EX = 31.5                                   # PD/2
 LENS_IN = [(6, 6), (50, 6), (52, -2), (48, -14), (40, -20), (20, -21), (9, -17), (5, -6)]
-COMB = (EX, 13, 6.5)                        # beam splitter centre (SCAD: COMB), in the unwrapped right frame
+COMB = (EX, 16, 0)                          # beam splitter centre (SCAD: COMB), in the unwrapped right frame; plate tilted 45° about X
 WRAP = math.radians(6)                      # SCAD: WRAP — each half rotated about Z at the bridge
 
 def wrap(p, side=1):
@@ -182,13 +182,13 @@ def build_glasses():
     for side, mirror in (('R', False), ('L', True)):
         outline_mesh(f'lens_{side}', LENS_IN, 0.4, 2.4, M_LENS, mirror, root)
     # beam splitter hanging below the hood, 45 deg about Z
-    comb = box('combiner', wrap(COMB), (30, 1.6, 30), M_COMB, 0.2, rot=(0, 0, math.radians(45) - WRAP), parent=root)
+    comb = box('combiner', wrap(COMB), (30, 1.6, 30), M_COMB, 0.2, rot=(math.radians(-45), 0, -WRAP), parent=root)
     # HUD content on the eye side of the plate (upper part, where the beam lands)
-    bpy.ops.object.text_add(location=wrap((COMB[0], COMB[1], COMB[2] + 5))); t = bpy.context.object; t.name = 'hud_text'
+    bpy.ops.object.text_add(location=wrap((COMB[0], COMB[1] - 0.6, COMB[2] + 0.6))); t = bpy.context.object; t.name = 'hud_text'
     t.data.body = '12:34\nGLASS'; t.data.size = 4; t.data.align_x = 'CENTER'; t.data.align_y = 'CENTER'
     t.data.extrude = 0.1; t.data.materials.append(M_HUD)
-    t.rotation_euler = Euler((math.radians(90), 0, math.radians(225) - WRAP), 'XYZ')
-    t.location = Vector(wrap((COMB[0], COMB[1], COMB[2] + 5))) + Vector((-0.7, 0.7, 0))
+    t.rotation_euler = Euler((math.radians(45), 0, math.radians(180) - WRAP), 'XYZ')
+    t.location = Vector(wrap((COMB[0], COMB[1] - 0.6, COMB[2] + 0.6)))
     t.parent = root
     # camera lens glass in the right pod's front wall, status LED on the left pod
     cyl('cam_glass', wrap((88, 27.3, 31)), 2.8, 0.6, M_CAM, 'Y', root); bpy.context.object.rotation_euler.z = -WRAP
