@@ -105,8 +105,8 @@ img, canvas, video { max-width: 100%; display: block; }
   padding: 6px 12px; border-radius: 999px; font-size: 12px; font-weight: 600; letter-spacing: 0.02em;
   background: rgba(0,0,0,0.6); color: #fff; backdrop-filter: blur(10px); white-space: nowrap;
 }
-.final .ph > img, .final .ph > canvas { filter: none; opacity: 1; }
-.final .ph::after { display: none; }
+.final .ph > img, .final .ph > canvas, .ph.final > img { filter: none; opacity: 1; }
+.final .ph::after, .ph.final::after { display: none; }
 
 /* ---------- HUD (the signature element: a real 128x64 framebuffer) ---------- */
 .hud {
@@ -238,3 +238,49 @@ img, canvas, video { max-width: 100%; display: block; }
 
 /* hero renders must never crop: contain, not cover */
 .lm-hero .art img { object-fit: contain; object-position: center 45%; padding: 64px 0 120px; }
+
+/* ---------- phones ---------- */
+.brand { white-space: nowrap; }
+.nav-links { white-space: nowrap; overflow-x: auto; scrollbar-width: none; -webkit-overflow-scrolling: touch; }
+.nav-links::-webkit-scrollbar { display: none; }
+.hud canvas { width: min(512px, 100%); height: auto; aspect-ratio: 2 / 1; }
+.hud.sm canvas { width: min(256px, 100%); height: auto; }
+.bar { white-space: nowrap; max-width: calc(100vw - 32px); }
+@media (max-width: 700px) {
+  .nav-links { gap: 16px; font-size: 13px; }
+  .nav .wrap { padding: 0 16px; }
+  .wrap { padding: 0 20px; }
+  .display { font-size: clamp(40px, 12vw, 64px); }
+  .hero { padding-top: 40px; }
+  .lm-hero { min-height: 78vh; }
+  .lm-hero .art img { padding: 56px 0 160px; }
+  .scrub { height: 220vh; }
+  .scrub .cap { top: 8%; }
+  .optics .stage { grid-template-columns: 1fr; grid-template-rows: auto 1fr; align-content: start; gap: 12px; padding-top: 16px; }
+  .optics .stage svg { order: -1; max-height: 42vh; width: 100%; }
+  .optics .stage .steps-copy { min-height: 300px; }
+  .optics .step p { max-width: none; }
+  .explorer { padding: 32px 0; }
+  .explorer .card-x { min-height: 0; border-radius: 22px; }
+  .explorer .list { padding: 24px 18px; }
+  .explorer .art { min-height: 260px; }
+  .assist { padding: 56px 0; }
+  .assist .row { gap: 28px; }
+  .viewer .box { height: 62vw; }
+  .tile .copy .h1 { font-size: clamp(34px, 10vw, 48px); }
+  .tile > img { padding: 8px 16px 20px; max-height: 300px; }
+  .bar { bottom: 14px; font-size: 13px; gap: 10px; padding: 6px 6px 6px 14px; }
+  .bar .pill { min-height: 32px; padding: 0 12px; font-size: 13px; }
+  .foot { padding: 32px 0 96px; }
+}
+
+/* light sections inside the dark page keep dark text */
+.dark .assist .eyebrow, .dark .assist .lead, .dark .assist .small, .dark .versions .eyebrow, .dark .versions .small { color: var(--ash); }
+.dark .assist .lead { color: var(--ash); }
+.hud { display: block; width: min(524px, 100%); }
+.hud.sm { width: min(268px, 100%); }
+.assist .sim { justify-items: stretch; }
+@media (max-width: 700px) {
+  .optics .stage { align-items: start; }
+  .optics .stage .steps-copy { min-height: 260px; }
+}
